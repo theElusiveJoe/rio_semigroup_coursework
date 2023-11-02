@@ -3,13 +3,16 @@ from abc import ABC, abstractmethod
 
 
 class Universe(ABC):
+    @abstractmethod
+    def __init__(self, *args, **kwargs) -> None:
+        pass
 
     @abstractmethod
     def __repr__(self):
         pass
 
     @abstractmethod
-    def __mul__(self, o):
+    def __mul__(self, o) -> Universe:
         pass
 
     @abstractmethod
@@ -20,8 +23,7 @@ class Universe(ABC):
     def __hash__(self) -> int:
         pass
 
-    @staticmethod
     @abstractmethod
-    def e() -> Universe:
+    def identity(self) -> Universe:
         pass
 

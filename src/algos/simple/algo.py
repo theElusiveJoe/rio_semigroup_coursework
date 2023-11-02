@@ -1,6 +1,6 @@
-from universes.abc_universe import Universe
-from monoid.monoid_controller import MonoidController
-from monoid.monoid_elem import MonoidElem
+from universes.abstract import Universe
+from monoid.controller import MonoidController
+from monoid.element import MonoidElem
 
 
 class SimpleAlgo:
@@ -18,7 +18,7 @@ class SimpleAlgo:
         return u
     
     def run(self):
-        self.queue = [MonoidElem([i]) for i in range(len(self.contoller.generating))]
+        self.queue = [MonoidElem([i]) for i in range(len(self.contoller.generators))]
         known_elems = dict()
         for elem in self.queue:
             known_elems[self.contoller.evaluate(elem)] = elem
@@ -27,7 +27,7 @@ class SimpleAlgo:
         rules = []
         while True:
             print(f'-> u =', u)
-            for ai in range(len(self.contoller.generating)):
+            for ai in range(len(self.contoller.generators)):
                 uai = u + MonoidElem([ai])
                 uai_val = self.contoller.evaluate(uai)
                 print(f'->     uai = ({uai})', end = '; ')

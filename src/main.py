@@ -1,22 +1,17 @@
-from universes.T_universe import T
-from algos.simple_algo import SimpleAlgo
-from monoid.monoid_controller import MonoidController
-from testing.testing import check_trs_correctness
-
-a = T([2,2,4,4,5,6])
-b = T([5,3,4,4,6,6])
-
-# a = T([2,3,4,5,6,1])
-# b = T([1,1,3,4,5,6])
-
-mc = MonoidController([a, b], ['a', 'b'])
-algo = SimpleAlgo(mc)
-rules = algo.run()
-for l,r in rules:
-    print(l, '->', r)
+from testing import tests
 
 
-check_trs_correctness(mc, rules)
+# algo = tests.t6_identity()  # should throw error
+# algo = tests.t6_paper_example()
+# algo = tests.t3_entire()
+algo = tests.t4_entire()
+# algo = tests.t6_principal_ideal()
+# algo = tests.t6_permutations()
+# algo = tests.t6_two_elems()
 
+A = set([v.value for v in algo.table.values()])
+print(f'total: {len(A)} elems')
 
-
+# for x in A:
+#     for y in A:
+#         assert x*y in A

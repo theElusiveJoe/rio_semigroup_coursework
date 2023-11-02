@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Iterable
-from universes.abc_universe import Universe
+from universes.abstract import Universe
 
 
-class T(Universe):
+class Transformation(Universe):
     elems: tuple[int, ...]
 
     def __init__(self, elems: Iterable[int]) -> None:
@@ -15,19 +15,18 @@ class T(Universe):
     def __repr__(self) -> str:
         return str(self.elems)
     
-    def __mul__(self, other:T):
+    def __mul__(self, other:Transformation):
         new_elems = []
         for x in other.elems:
             new_elems.append(self.elems[x-1])
 
-        return T(new_elems)
+        return Transformation(new_elems)
     
-    def __eq__(self, other:T) -> bool:
+    def __eq__(self, other:Transformation) -> bool:
         return self.elems == other.elems
     
     def __hash__(self) -> int:
         return hash(self.elems)
     
-    @staticmethod
-    def e():
-        return T([1,2,3,4,5,6])
+    def identity(self):
+        return Transformation([i for i in range(1, len(self)+1)])
