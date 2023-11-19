@@ -61,29 +61,40 @@ class ExtendedAlgo:
             identity_node.pua_flag.append(True)
 
     def main_cycle(self):
-        u = MonoidElem([0])
-        v = u
-        last = MonoidElem([self.k-1])
-
         cur_len = 1
+        # u is current string
+        # we calculate ua for each a in generators
+        u = MonoidElem([0])
+        # v is smallest string of current length
+        v = u
+        # last is the greatest irreducable string we met 
+        last = MonoidElem([self.k-1])
+        # by default we set identity elem as next for each new node
+        # the algorithm converged, when u.next is identity (u if the greatest string)
         while u != MonoidElem.identity():
 
             self.log(1, f'computing uai for each u of length {cur_len}')
+            # actually, we dont need this assertion
             assert len(v) == cur_len
 
             while len(u) == cur_len:
                 self.log(2, f'u = {self.mc.to_string(u)}')
                 b = u.first()
                 s = u.suffix()
-                for i in range(self.k):
+                for i in range(self.k): 
                     a = MonoidElem.from_char(i)
                     sa = s + a
                     self.log(3, f'a = {self.mc.to_string(a)}')
                     self.log(3, f'sa = {self.mc.to_string(sa)}')
-                    # sa is reducable
-                    if any(map(lambda x: x.lhs in sa, self.rules.rules)):
+                    # note, that each node represents irreducable string
+                    # hence N.next is irreucable for each node N
+                    # u is next of some node
+                    # that means u is irreducable,
+                    # so we only have to check sa
+                    if self.table[s].pua_flag[i] == False: # sa is not reduced
                         self.log(4, f'sa is reducable')
                         r = self.table[s].pua[i]
+                        print('r is ', r)
                         if r.is_identity():
                             self.table[u].pua.append(b)
                             self.table[u].pua_flag.append(False)
@@ -100,8 +111,8 @@ class ExtendedAlgo:
                                 4,
                                 f'{self.mc.to_string(u)}.pua[{self.mc.to_string(a)}] '+ \
                                     f':= {self.mc.to_string(new_pua)}')
-                    # sa is irreducable
-                    else:
+                   
+                    else: # sa is irreducable
                         self.log(4, f'sa is irreducable')
                         ua_val = self.table[u].value * \
                             self.mc.generators[i]
