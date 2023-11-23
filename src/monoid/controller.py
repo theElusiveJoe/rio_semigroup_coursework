@@ -16,7 +16,7 @@ class MonoidController:
         self.generators = seq
         self.names = names
 
-    def identity(self):
+    def identity(self) -> Universe:
         return self.generators[0].identity()
 
     def compare(self, e1: MonoidElem, e2: MonoidElem) -> int:
@@ -49,19 +49,19 @@ class MonoidController:
 
         return res
 
-    def to_names(self, e: MonoidElem):
+    def to_names(self, e: MonoidElem) -> list[str]:
         if self.names is None:
-            return map(str, e.symbols)
+            return list(map(str, e.symbols))
         return [self.names[i] for i in e.symbols]
     
-    def to_string(self, e: MonoidElem):
+    def to_string(self, e: MonoidElem) -> str:
         if e.is_identity():
             return 'eps'
         if self.names is None:
             return ','.join(map(str, e.symbols))
         return ''.join(self.to_names(e))
     
-    def next(self, elem: MonoidElem):
+    def next(self, elem: MonoidElem) -> MonoidElem:
         def loop(seq):
             if seq == []:
                 return [0]
