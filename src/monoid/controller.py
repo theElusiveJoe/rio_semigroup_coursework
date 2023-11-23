@@ -38,9 +38,9 @@ class MonoidController:
         
         return 0
     
-    def evaluate(self, e: MonoidElem):
-        if e.is_identity:
-            return self.identity
+    def evaluate(self, e: MonoidElem) -> Universe:
+        if e.is_identity():
+            return self.identity()
         elems = [self.generators[i] for i in e.symbols]
 
         res = elems[0]
