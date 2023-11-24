@@ -5,7 +5,7 @@ from monoid.element import MonoidElem
 class MonoidController:
     universe_type: type
     generators: list[Universe]
-    names: list[str]|None
+    names: list[str]
 
     def __init__(self, seq: list[Universe], names: list[str]|None = None) -> None:
         self.universe_type = type(seq[0])
@@ -14,7 +14,7 @@ class MonoidController:
             raise RuntimeError(f'identity elem can not be generator')
 
         self.generators = seq
-        self.names = names
+        self.names = names if names else [chr(i) for i in range(ord('a'), ord('a')+len(self.generators))]
 
     def identity(self) -> Universe:
         return self.generators[0].identity()
