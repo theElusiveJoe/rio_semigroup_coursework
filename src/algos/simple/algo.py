@@ -3,7 +3,7 @@ from monoid.controller import MonoidController
 from monoid.element import MonoidElem
 
 
-class SimpleAlgo:
+class Algo:
     contoller: MonoidController
 
     def __init__(self, mc:MonoidController) -> None:

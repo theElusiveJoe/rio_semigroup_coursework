@@ -5,7 +5,7 @@ from algos.extended.node import ExtendedNode
 from monoid.rules import RulesSystem
 
 
-class ExtendedAlgo:
+class Algo:
     mc: MonoidController
     k: int
     rules: RulesSystem
