@@ -18,7 +18,7 @@ class ExtendedNode:
     pau: list[MonoidElem] = field(default_factory=list)
 
     def retrieve_string(self) -> MonoidElem:
-        if self.is_identity:
+        if self.is_identity():
             return MonoidElem.identity()
         return self.first + self.suffix
     
