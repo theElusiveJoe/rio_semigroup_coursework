@@ -1,7 +1,7 @@
 from typing import Any
 from universes.abstract import Universe
 from monoid.controller import MonoidController
-from algos.extended.algo import ExtendedAlgo
+from algos.extended import Algo
 
 
 
@@ -21,7 +21,7 @@ class Test:
 
     def run(self):
         mc = MonoidController(self.generators, self.names)
-        algo = ExtendedAlgo(mc)
+        algo = Algo(mc)
         algo.run()
 
         print(algo.rules)
