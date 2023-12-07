@@ -4,3 +4,5 @@ res
 **/.idea
 /origins
 res*
+.venv/
+misc/
