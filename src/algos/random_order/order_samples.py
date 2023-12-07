@@ -12,5 +12,4 @@ LEX_ORDER = OrderConfig(
     add_func=lambda frontier, new_elems: frontier.extend(new_elems[::-1]),
     pop_func=lambda frontier: frontier.pop(-1),
     desc='lg order',
-
 )
