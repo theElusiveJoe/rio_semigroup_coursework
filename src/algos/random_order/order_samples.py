@@ -14,4 +14,3 @@ LEX_ORDER = OrderConfig(
     desc='lg order',
 
 )
- 

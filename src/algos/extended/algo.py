@@ -67,7 +67,7 @@ class Algo:
         u = MonoidElem([0])
         # v is smallest string of current length
         v = u
-        # last is the greatest irreducable string we met 
+        # last is the greatest irreducable string we met
         last = MonoidElem([self.k-1])
         # by default we set identity elem as next for each new node
         # the algorithm converged, when u.next is identity (u if the greatest string)
@@ -81,7 +81,7 @@ class Algo:
                 self.log(2, f'u = {self.mc.to_string(u)}')
                 b = u.first()
                 s = u.suffix()
-                for i in range(self.k): 
+                for i in range(self.k):
                     a = MonoidElem.from_char(i)
                     sa = s + a
                     self.log(3, f'a = {self.mc.to_string(a)}')
@@ -91,7 +91,7 @@ class Algo:
                     # u is next of some node
                     # that means u is irreducable,
                     # so we only have to check sa
-                    if self.table[s].pua_flag[i] == False: # sa is not reduced
+                    if self.table[s].pua_flag[i] == False:  # sa is not reduced
                         self.log(4, f'sa is reducable')
                         r = self.table[s].pua[i]
                         print('r is ', r)
@@ -109,10 +109,10 @@ class Algo:
                             self.table[u].pua_flag.append(False)
                             self.log(
                                 4,
-                                f'{self.mc.to_string(u)}.pua[{self.mc.to_string(a)}] '+ \
-                                    f':= {self.mc.to_string(new_pua)}')
-                   
-                    else: # sa is irreducable
+                                f'{self.mc.to_string(u)}.pua[{self.mc.to_string(a)}] ' +
+                                f':= {self.mc.to_string(new_pua)}')
+
+                    else:  # sa is irreducable
                         self.log(4, f'sa is irreducable')
                         ua_val = self.table[u].value * \
                             self.mc.generators[i]

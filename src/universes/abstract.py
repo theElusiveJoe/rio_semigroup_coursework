@@ -26,4 +26,3 @@ class Universe(ABC):
     @abstractmethod
     def identity(self) -> Universe:
         pass
-

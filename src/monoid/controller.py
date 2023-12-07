@@ -7,14 +7,15 @@ class MonoidController:
     generators: list[Universe]
     names: list[str]
 
-    def __init__(self, seq: list[Universe], names: list[str]|None = None) -> None:
+    def __init__(self, seq: list[Universe], names: list[str] | None = None) -> None:
         self.universe_type = type(seq[0])
 
         if seq[0].identity() in seq:
             raise RuntimeError(f'identity elem can not be generator')
 
         self.generators = seq
-        self.names = names if names else [chr(i) for i in range(ord('a'), ord('a')+len(self.generators))]
+        self.names = names if names else [chr(i) for i in range(
+            ord('a'), ord('a')+len(self.generators))]
 
     def identity(self) -> Universe:
         return self.generators[0].identity()
@@ -30,14 +31,14 @@ class MonoidController:
             return 1
         if len(e1) < len(e2):
             return -1
-        
+
         if e1.symbols > e2.symbols:
             return 1
         if e1.symbols < e2.symbols:
-            return -1    
-        
+            return -1
+
         return 0
-    
+
     def evaluate(self, e: MonoidElem) -> Universe:
         if e.is_identity():
             return self.identity()
@@ -53,14 +54,14 @@ class MonoidController:
         if self.names is None:
             return list(map(str, e.symbols))
         return [self.names[i] for i in e.symbols]
-    
+
     def to_string(self, e: MonoidElem) -> str:
         if e.is_identity():
             return 'eps'
         if self.names is None:
             return ','.join(map(str, e.symbols))
         return ''.join(self.to_names(e))
-    
+
     def next(self, elem: MonoidElem) -> MonoidElem:
         def loop(seq):
             if seq == []:
@@ -68,7 +69,6 @@ class MonoidController:
             if seq[-1] == len(self.generators)-1:
                 return loop(seq[:-1]) + [0]
             return seq[:-1] + [seq[-1]+1]
-                
-        ret =  MonoidElem(loop(elem.symbols))
-        return ret
 
+        ret = MonoidElem(loop(elem.symbols))
+        return ret

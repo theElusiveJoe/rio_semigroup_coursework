@@ -7,9 +7,9 @@ from monoid.element import MonoidElem
 @dataclass
 class ExtendedNode:
     value: Universe
-    first: MonoidElem   
-    last: MonoidElem 
-    prefix: MonoidElem     
+    first: MonoidElem
+    last: MonoidElem
+    prefix: MonoidElem
     suffix: MonoidElem
     len: int
     next: MonoidElem
@@ -21,6 +21,6 @@ class ExtendedNode:
         if self.is_identity():
             return MonoidElem.identity()
         return self.first + self.suffix
-    
+
     def is_identity(self):
         return self.first == MonoidElem([])
