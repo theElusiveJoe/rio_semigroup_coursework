@@ -16,7 +16,7 @@ class Universe(ABC):
         pass
 
     @abstractmethod
-    def __eq__(self, o):
+    def __eq__(self, o) -> bool:
         pass
 
     @abstractmethod
