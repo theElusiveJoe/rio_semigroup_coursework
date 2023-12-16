@@ -1,17 +1,26 @@
-from testing import tests
+from algos.random_order import Algo, OrderConfig, LEX_ORDER, MILITARY_ORDER
+from monoid.controller import MonoidController
+from samples import military_samples
 
 
-# algo = tests.t6_identity()  # should throw error
-# algo = tests.t6_paper_example()
-# algo = tests.t3_entire()
-algo = tests.t4_entire()
-# algo = tests.t6_principal_ideal()
-# algo = tests.t6_permutations()
-# algo = tests.t6_two_elems()
+def main():
+    the_test = military_samples.t6_paper_example.generators
+    mc = MonoidController(the_test)
 
-A = set([v.value for v in algo.table.values()])
-print(f'total: {len(A)} elems')
+    algo = Algo(
+        mc=mc,
+        order_cfg=MILITARY_ORDER,
+    )
+    res = algo.run()
+    print(res)
 
-# for x in A:
-#     for y in A:
-#         assert x*y in A
+    algo = Algo(
+        mc=mc,
+        order_cfg=LEX_ORDER,
+    )
+    res = algo.run()
+    print(res)
+
+
+if __name__ == '__main__':
+    main()

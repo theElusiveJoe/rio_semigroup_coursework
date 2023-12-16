@@ -1,5 +1,6 @@
 res
 **/.vscode
+**/.idea
 **/__pycache__
 **/.idea
 /origins

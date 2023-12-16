@@ -5,6 +5,7 @@ from sortedcontainers import SortedDict
 
 from monoid import MonoidElem
 from universes import Universe
+from utils.logger import log
 
 
 @dataclass
@@ -36,28 +37,25 @@ class PrefixTreeNode:
             assert type(s) == PrefixTreeNode
             s._calc_following()
 
-    def first_succ(self):
-        return self.succ[0]
+    def first_succ(self) -> PrefixTreeNode:
+        return self.succ.values()[0]  # type: ignore
 
 
 class PrefixTree:
     root: PrefixTreeNode
 
-    def __init__(self, bs: Iterable[tuple[MonoidElem, Universe]], id_val: Universe):
+    def __init__(self, bs: list[tuple[MonoidElem, Universe]], id_val: Universe):
         self.root = PrefixTreeNode(MonoidElem.identity(), id_val)
-        map(
-            lambda x: self.insert(*x),
-            sorted(
-                list(bs),
-                key=lambda x: x[0]
-            )
-        )
+        [self.insert(*x) for x in sorted(bs)]
         self.root._calc_following()
 
     def find_node(self, string: MonoidElem):
         return self.root.find_node(string)
 
     def insert(self, string: MonoidElem, value: Universe):
+        log(f'inserting {string}', lvl=2 )
+        if string.is_identity():
+            return
         pref, suff = self.root.find_node(
             string.prefix()), self.root.find_node(string.suffix())
         if pref is None or suff is None:

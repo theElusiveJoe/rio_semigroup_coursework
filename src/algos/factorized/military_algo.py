@@ -1,5 +1,6 @@
 from monoid import MonoidController, MonoidElem
 from universes import Universe
+
 from .easy_node import EasyNode
 from .semigroup_repr import SemigroupRepr
 
@@ -7,7 +8,6 @@ from .semigroup_repr import SemigroupRepr
 class MilitaryAlgo:
     mc: MonoidController
     sigma: list[int]
-
     table: dict[MonoidElem, EasyNode]
     value_table: dict[Universe, EasyNode]
 
@@ -17,23 +17,20 @@ class MilitaryAlgo:
         self.mc = mc
         self.sigma = sigma
 
-        self.table = dict()
-        self.value_table = dict()
-
-        self.queue = []
-
-    def to_sr(self):
-        return SemigroupRepr(
-            self.mc,
-            self.sigma,
-            self.table,
-            self.value_table
-        )
+        self.table = {}
+        self.value_table = {}
 
     def run(self):
         self.setup()
         self.main_cycle()
         return self.to_sr()
+
+    def to_sr(self):
+        return SemigroupRepr(
+            self.mc,
+            self.table,
+            self.value_table
+        )
 
     def setup(self):
         id_node = EasyNode(
@@ -43,6 +40,7 @@ class MilitaryAlgo:
         self.table[MonoidElem.identity()] = id_node
         self.value_table[self.mc.identity()] = id_node
 
+        self.queue = []
         for i in self.sigma:
             a = MonoidElem.from_char(i)
             a_val = self.mc.generators[i]

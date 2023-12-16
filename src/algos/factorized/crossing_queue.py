@@ -17,6 +17,9 @@ class QueueElem:
     bs_node: PrefixTreeNode
     kind: MonoidElemKind
 
+    def __repr__(self) -> str:
+        return f'{self.prefix}+{self.bs_node.string}'
+
     def to_string(self):
         return self.prefix + self.bs_node.string
 
@@ -29,6 +32,9 @@ class Queue:
 
     def __init__(self):
         self.storage = list()
+
+    def __repr__(self):
+        return f'Q{str(self.storage)}'
 
     def __len__(self):
         return len(self.storage)
