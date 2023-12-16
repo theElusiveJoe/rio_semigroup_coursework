@@ -5,7 +5,7 @@ from pprint import pp
 
 from universes import Universe
 from monoid import MonoidController, MonoidElem
-from utils import log 
+from utils.logger import log
 
 from .bs_prefix_tree import PrefixTree, PrefixTreeNode
 from .crossing_queue import QueueElem, Queue
