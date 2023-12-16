@@ -16,7 +16,7 @@ class GeneratingSetsFamily:
         return len(self.sigmas)
 
     @staticmethod
-    def build_from_description(universe_type: type[Universe], *generators_desc: tuple[list]):
+    def build_from_description(universe_type: type[Universe], *generators_desc: list):
         generators = [
             [universe_type(g) for g in gl]
             for gl in generators_desc
