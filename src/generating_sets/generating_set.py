@@ -1,13 +1,24 @@
-
-from dataclasses import dataclass
 from universes.abstract import Universe
 from monoid import MonoidController
 
 
-@dataclass
 class GeneratingSet:
     mc: MonoidController
     sigma: list[int]
+
+    def __init__(self, mc: MonoidController, sigma: list[int], check_duplicates: bool = True):
+        self.mc = mc
+        if check_duplicates:
+            # фильтруем повторяющиеся значения
+            generators = [self.mc.generators[i] for i in sigma]
+            filtered_sigma = []
+            for i in sigma:
+                if self.mc.generators[i] in generators[:i]:
+                    continue
+                filtered_sigma.append(i)
+            self.sigma = filtered_sigma
+        else:
+            self.sigma = sigma
 
     @staticmethod
     def build_from_description(universe_type: type[Universe], *generators_desc):
@@ -15,5 +26,7 @@ class GeneratingSet:
         return GeneratingSet(
             mc=MonoidController(generators),
             sigma=[i for i in range(len(generators))]
-
         )
+
+    def to_mc_and_sigma(self):
+        return self.mc, self.sigma
