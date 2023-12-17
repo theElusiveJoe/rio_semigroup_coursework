@@ -15,6 +15,13 @@ class PrefixTreeNode:
     succ: SortedDict = field(default_factory=SortedDict)
     following: PrefixTreeNode | None = None
 
+    def get_graph(self, lvl):
+        ss = []
+        for next in self.succ.values():
+            ss.append(f'{" "*2*lvl}{self.string} -> {next.string}')
+            ss += next.get_graph(lvl+1)
+        return ss
+
     def insert(self, string: MonoidElem, value: Universe):
         self.succ[string.last().letter()] = PrefixTreeNode(string, value)
 
@@ -49,6 +56,9 @@ class PrefixTree:
         [self.insert(*x) for x in sorted(bs)]
         self.root._calc_following()
 
+    def __repr__(self):
+        return '\n'.join(self.root.get_graph(1))
+
     def find_node(self, string: MonoidElem):
         return self.root.find_node(string)
 
@@ -63,7 +73,7 @@ class PrefixTree:
         pref.insert(string, value)
 
     def delete(self, string: MonoidElem):
-        prefix = self.find_node(string)
+        prefix = self.find_node(string.prefix())
         if prefix is None:
             return
         del prefix.succ[string.last().letter()]

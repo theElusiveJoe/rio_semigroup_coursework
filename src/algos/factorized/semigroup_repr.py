@@ -1,8 +1,11 @@
+from __future__ import annotations
 from dataclasses import dataclass
+from pprint import pp
 
 from monoid import MonoidController, MonoidElem
 from universes import Universe
 from .easy_node import EasyNode
+
 
 
 @dataclass
@@ -15,11 +18,12 @@ class SemigroupRepr:
         return {m: n.string for m, n in self.table.items() if n.value not in self.value_table}
 
     def draw_table(self):
-        pairs = list(map(
-            lambda x: (self.mc.to_string(x[0]), f'{self.mc.to_string(x[1].string)}'),
-            self.table.items()
-        ))
-
         print('Table:')
-        for x,y in pairs:
-            print(f'    {x} -> {y}')
+        for x,y in self.table.items():
+            print(f'    {x} -> {y.string}')
+
+    def get_srs(self):
+        return { k:v.string for k, v in self.table.items()}
+
+    def __eq__(self, o:SemigroupRepr):
+        return self.get_srs() == o.get_srs()

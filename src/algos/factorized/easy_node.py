@@ -24,8 +24,6 @@ class EasyNode:
     value: Universe
     string: MonoidElem
 
-    pua: set[int] = field(default_factory=set)
-    pau: set[int] = field(default_factory=set)
     linked_strings: set[MonoidElem] = field(default_factory=set)
     flags: EasyNodeFlags = field(default_factory=EasyNodeFlags)
 

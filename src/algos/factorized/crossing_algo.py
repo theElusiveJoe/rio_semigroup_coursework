@@ -39,6 +39,8 @@ class CrossingAlgo:
 
     def run(self):
         log('CROSSING ALGO')
+        self.sr1.draw_table()
+        self.sr2.draw_table()
         self.merge_cayley_graphs()
         self.grow_bs_prefix_tree()
         self.setup_queue()
@@ -126,12 +128,14 @@ class CrossingAlgo:
                 kind=MonoidElemKind.B,
             )
         )
-        log(f'now queue is {self.queue}')
+        log(f'now queue is {self.queue}', lvl=2 )
 
     def calc_crossing(self):
         log('CROSSING STARTED')
         while len(self.queue) > 0:
-            # выдергиваем следующий из очереди
+            # выдергиваем следующий из очереди      
+            log(f'now queue is {self.queue}', lvl=2 )
+
             qelem = self.queue.pop()
             log(f'u = {qelem}', lvl=2)
 
@@ -156,7 +160,7 @@ class CrossingAlgo:
             def next_switch_kind():
                 log('this is switch kind', lvl=4)
                 return QueueElem(
-                    qelem.to_string() ,
+                    qelem.to_string(),
                     qelem.prefix_value * qelem.bs_node.value,
                     switch_kind_nodes[sk_index],  # type: ignore
                     qelem.kind.another(),
@@ -165,9 +169,9 @@ class CrossingAlgo:
             def next_succ():
                 log('this is next succ', lvl=4)
                 return QueueElem(
-                    qelem.to_string(),
+                    qelem.prefix,
                     qelem.prefix_value,
-                    succ_nodes.get[sn_index],
+                    succ_nodes[sn_index],  # type: ignore
                     qelem.kind,
                 )
 
@@ -187,7 +191,9 @@ class CrossingAlgo:
                         sn_index += 1
                     case _, _:
                         # сравниваем два варианта по последней букве
-                        if switch_kind_nodes.keys.get(sk_index) < succ_nodes.get(sn_index):
+                        # print(f'cmp {switch_kind_nodes[sk_index].string} and {succ_nodes[sn_index].string.last()}')
+                        # type: ignore
+                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(): #type: ignore
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
                             sk_index += 1
@@ -201,7 +207,6 @@ class CrossingAlgo:
                 # просто добавим ее в очередь
                 log(f'ua = {new_qelem}', lvl=5)
                 if new_qelem.prefix.is_identity():
-                    raise RuntimeError('never executes!')
                     self.queue.add(new_qelem)
                     log('new_qelem in basic strings: just add it to queue', lvl=5)
                     continue
@@ -235,14 +240,18 @@ class CrossingAlgo:
 
                 # такое значение есть, и эта строка не превосходит уже найденную
                 if ua_min_node.string < ua:
+                    log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
+
                     self.table[ua] = ua_min_node
                     ua_min_node.linked_strings.add(ua)
-                    log(f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
+                    log(
+                        f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
                     continue
 
                 # такое значение есть, но оно меньше уже найденного
                 old_node = ua_min_node
-                log(f'string with such value exists {old_node.string}, but ua is less', lvl=5)
+                log(
+                    f'string with such value exists {old_node.string}, but ua is less', lvl=5)
                 # создаем новый узел
                 new_node = EasyNode(
                     value=ua_val,
@@ -261,10 +270,9 @@ class CrossingAlgo:
                 # если старый узел содержал базовую строку,
                 # то эту базовую строку надо удалить из bs_tree,
                 # чтобы больше не использовать ни эту строку, ни ее потомков
+                log(f'delete {old_node.string} from prefix trees', lvl=5)
                 self.bs_A.delete(old_node.string)
                 self.bs_B.delete(old_node.string)
 
                 # ну и добавляем в очередь
                 self.queue.add(new_qelem)
-
-

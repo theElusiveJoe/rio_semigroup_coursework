@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from sortedcontainers import SortedList
 
@@ -25,13 +26,16 @@ class QueueElem:
 
     def get_value(self):
         return self.prefix_value * self.bs_node.value
+    
+    def __lt__(self, o: QueueElem):
+        return self.to_string() < o.to_string()
 
 
 class Queue:
-    storage: list[QueueElem]
+    storage: SortedList
 
     def __init__(self):
-        self.storage = list()
+        self.storage = SortedList()
 
     def __repr__(self):
         return f'Q{str(self.storage)}'
@@ -43,4 +47,4 @@ class Queue:
         return self.storage.pop(0)
 
     def add(self, e: QueueElem):
-        self.storage.append(e)
+        self.storage.add(e)
