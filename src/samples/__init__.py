@@ -1,2 +1,2 @@
-from .crossing_samples import * 
-from .military_samples import *
+from . import crossing_samples  
+from . import military_samples 

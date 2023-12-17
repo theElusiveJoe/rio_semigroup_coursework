@@ -34,14 +34,10 @@ class MonoidElem:
         return False
 
     def __lt__(self, o: MonoidElem):
-        if len(self) < len(o):
-            return True
+        return len(self) < len(o) or len(self) == len(o) and self.symbols < o.symbols
 
-        for x, y in zip(self.symbols, o.symbols):
-            if x < y:
-                return True
-
-        return False
+    def __gt__(self, o: MonoidElem):
+        return o < self
 
     def first(self):
         return MonoidElem([self[0]])
