@@ -21,15 +21,15 @@ class PrefixTree:
     def find_node(self, string: MonoidElem):
         return self.root.find_node(string)
 
-    def insert(self, string: MonoidElem, value: Universe):
+    def insert(self, string: MonoidElem, value: Universe, skip_if_suff_not_exists=True):
         log(f'inserting {string}', lvl=2)
         if string.is_identity():
             return
         pref, suff = self.root.find_node(
             string.prefix()), self.root.find_node(string.suffix())
-        if pref is None or suff is None:
+        if pref is None or suff is None and skip_if_suff_not_exists:
             return
-        pref.insert(string, value)
+        pref.attach(string, value)
 
     def delete(self, string: MonoidElem):
         prefix = self.find_node(string.prefix())
@@ -39,18 +39,13 @@ class PrefixTree:
 
     def search_superstrings(self, w: MonoidElem, ret_w=False):
         def rec_foo(w_node: PrefixTreeNode, ret_w=False):
-            print('----')
-            print(f'in rec foo: w is {w_node.string}')
             # {wx | x in SIGMA*}
             wx_strings = w_node.get_all_existing_postfix_superstrings(
                 ret_self=ret_w)
-            print(f'wx is {wx_strings}')
             # {yw | y in SIGMA}
-
             yw_nodes = list(filter(None, [node.find_node(w_node.string)
                                           for node in self.root.get_succ_nodes()]))
 
-            print(f'yw is {list(map(lambda x: x.string, yw_nodes))}')
             return wx_strings | set(itertools.chain(*[rec_foo(node, ret_w=True) for node in yw_nodes if node is not None]))
 
         w_node = self.find_node(w)
