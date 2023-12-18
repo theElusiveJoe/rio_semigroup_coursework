@@ -37,7 +37,8 @@ class MilitaryAlgo:
         return SemigroupRepr(
             self.mc,
             self.table,
-            self.value_table
+            self.value_table,
+            set(self.sigma)
         )
 
     def setup(self):
@@ -103,6 +104,7 @@ class MilitaryAlgo:
 
                 # значение не новое, надо редуцировать
                 else:
-                    self.table[ua] = min_node
+                    # IGNORE LINKED STRINGS
+                    # self.table[ua] = min_node
                     min_node.linked_strings.add(ua)
                     log(f'ua_val exists: reduce', lvl=3)

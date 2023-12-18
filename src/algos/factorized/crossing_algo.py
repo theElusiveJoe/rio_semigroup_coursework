@@ -36,6 +36,11 @@ class CrossingAlgo:
             MonoidElemKind.A: self.bs_B,
             MonoidElemKind.B: self.bs_A,
         }[kind]
+    
+    def is_homogenious(self, string: MonoidElem):
+        return all(map(lambda x: x in self.sr1.sigma, string.symbols)) or all(map(lambda x: x in self.sr2.sigma, string.symbols))
+
+
 
     def run(self):
         log('CROSSING ALGO')
@@ -53,7 +58,8 @@ class CrossingAlgo:
         return SemigroupRepr(
             self.mc,
             self.table,
-            self.value_table
+            self.value_table,
+            self.sr1.sigma | self.sr2.sigma  
         )
 
     def grow_bs_prefix_tree(self):
@@ -71,7 +77,7 @@ class CrossingAlgo:
             id_val=self.mc.identity(),
         )
 
-    def rm_bs_from_table_and_trees(self, string: MonoidElem, table: dict| None):
+    def rm_bs_from_table_and_trees(self, string: MonoidElem, table: dict | None):
         if table is None:
             table = self.table
         self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
@@ -105,22 +111,25 @@ class CrossingAlgo:
                 node, short_node = n1, n2
                 tree_with_big_string = self.bs_A
 
-
-            # убираем ноду из  таблицы значений
+            # убираем ноду из таблицы значений
             del value_table[cv]
+
             # node.string -> short_node.string
             log(f'link {node.string} to {short_node.string}', lvl=3)
-            table[node.string] = short_node
+            # IGNORE LINKED STRINGS
+            # table[node.string] = short_node
             short_node.linked_strings.add(node.string)
-            # удаляем node.string из prefix_tree
-            log(f'rm {node.string} and all its superstrings from prefix trees', lvl=3)
-            tree_with_big_string.delete_all_superstrings_from_table_and_tree(node.string, table)
-
-            # заменяем правила редукции
-            for ls in node.linked_strings:
-                table[ls] = short_node
-                short_node.linked_strings.add(ls)
             log(f'link {node.linked_strings} to {short_node.string}', lvl=3)
+            short_node.linked_strings |= node.linked_strings
+
+            # удаляем node.string из prefix_tree
+            log(f'rm {node.string} and all its superstrings from prefix trees and table', lvl=3)
+            tree_with_big_string.delete_all_superstrings_from_table_and_tree(
+                node.string, table)
+
+            # IGNORE LINKED STRINGS
+            # for ls in node.linked_strings:
+                # table[ls] = short_node
 
         # соберем вместе две таблицы
         self.table = {**self.sr1.table, **self.sr2.table}
@@ -168,6 +177,7 @@ class CrossingAlgo:
                 self.queue.add(next_qelem)
                 log(f'add {next_qelem} to queue', lvl=3)
 
+            # конструируем множества следующих строк
             switch_kind_nodes = self.another_bs_kind(
                 qelem.kind).root.get_succ_nodes()
             succ_nodes = qelem.bs_node.get_succ_nodes()
@@ -198,7 +208,7 @@ class CrossingAlgo:
                 )
 
             log('iterate succ and switch_kind', lvl=3)
-            # перебераем все валидные строки
+            # перебераем все следующие строки
             while True:
                 match sk_index < len(switch_kind_nodes), sn_index < len(succ_nodes):
                     case False, False:
@@ -213,8 +223,7 @@ class CrossingAlgo:
                         sn_index += 1
                     case _, _:
                         # сравниваем два варианта по последней букве
-                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(
-                        ):
+                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last():
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
                             sk_index += 1
@@ -223,10 +232,13 @@ class CrossingAlgo:
                             new_qelem = next_succ()
                             sn_index += 1
 
-                # ua - это базовая строка - т.е. prefix = eps
-                # то не надо ничего проверять - ua и так минимальная c таким значением из рассмотренных ранее
-                # просто добавим ее в очередь
                 log(f'ua = {new_qelem}', lvl=5)
+
+                # ua - это базовая строка - т.е. prefix = eps
+                # ua только что вышел из prefix tree, 
+                # значит он точно никуда не редуцируется
+                # и есть в таблицах
+                # просто добавим ее в очередь
                 if new_qelem.prefix.is_identity():
                     self.queue.add(new_qelem)
                     log('new_qelem in basic strings: just add it to queue', lvl=5)
@@ -236,8 +248,8 @@ class CrossingAlgo:
                 sa = ua.suffix()
                 sa_node = self.table.get(sa)
 
-                # sa сократима, если ее нет в таблице, или она редуцируется
-                if sa_node is None or sa_node.string != sa:
+                # sa редуцируема, если ее нет в таблице
+                if sa_node is None:
                     log('new_qelem in is reducable: skip', lvl=5)
                     continue
 
@@ -263,14 +275,14 @@ class CrossingAlgo:
                 # найденную
                 if ua_min_node.string < ua:
                     log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
-
-                    self.table[ua] = ua_min_node
-                    ua_min_node.linked_strings.add(ua)
+                    ua_min_node.heterogenic_linked_strings.add(ua)
                     log(
                         f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
                     continue
 
-                # такое значение есть, но оно меньше уже найденного
+                # такое значение есть,
+                # ua < ua_min_string
+                # значит, ua_min_string - гомогенная
                 old_node = ua_min_node
                 log(
                     f'string with such value exists {old_node.string}, but ua is less', lvl=5)
@@ -279,22 +291,23 @@ class CrossingAlgo:
                     value=ua_val,
                     string=ua,
                 )
+                
                 # записываем новый узел в таблицы
                 self.table[ua] = new_node
                 self.value_table[ua_val] = new_node
+
+                log(f'link {old_node.linked_strings} and {old_node.heterogenic_linked_strings} to {ua}', lvl=5)
+                new_node.linked_strings |= old_node.linked_strings
+                new_node.heterogenic_linked_strings |= old_node.heterogenic_linked_strings
+                
                 # старая строка редуцируется к новой
-                log(f'link {old_node.string} to {ua}', lvl=5)
-                self.table[old_node.string] = new_node
-                # и все строки, которые к ней редуцировались - тоже
-                log(f'link {old_node.linked_strings} to {ua}', lvl=5)
-                for ls in old_node.linked_strings:
-                    self.table[ls] = new_node
-                # если старый узел содержал базовую строку,
-                # то эту базовую строку надо удалить из bs_tree,
-                # чтобы больше не использовать ни эту строку, ни ее потомков
-                log(f'delete {old_node.string} from prefix trees', lvl=5)
-                self.bs_A.delete(old_node.string)
-                self.bs_B.delete(old_node.string)
+                old_string = old_node.string
+                log(f'link {old_string} to {ua}', lvl=5)
+                new_node.linked_strings.add(old_string)
+                
+                # удаляем old_string из prefix_tree
+                log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=3)
+                self.rm_bs_from_table_and_trees(old_string, self.table)
 
                 # ну и добавляем в очередь
                 self.queue.add(new_qelem)

@@ -12,6 +12,7 @@ class SemigroupRepr:
     mc: MonoidController
     table: dict[MonoidElem, EasyNode]
     value_table: dict[Universe, EasyNode]
+    sigma: set[int]
 
     def get_rules(self):
         return {m: n.string for m, n in self.table.items(

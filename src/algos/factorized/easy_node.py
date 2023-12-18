@@ -15,17 +15,12 @@ class MonoidElemKind(IntEnum):
 
 
 @dataclass
-class EasyNodeFlags:
-    is_common: int = -1
-
-
-@dataclass
 class EasyNode:
     value: Universe
     string: MonoidElem
 
     linked_strings: set[MonoidElem] = field(default_factory=set)
-    flags: EasyNodeFlags = field(default_factory=EasyNodeFlags)
+    heterogenic_linked_strings: set[MonoidElem] = field(default_factory=set)
 
     def __len__(self):
         return len(self.string)
