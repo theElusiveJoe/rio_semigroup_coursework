@@ -10,9 +10,11 @@ from .bs_prefix_tree_node import PrefixTreeNode
 class PrefixTree:
     root: PrefixTreeNode
 
-    def __init__(self, bs: list[tuple[MonoidElem, Universe]], id_val: Universe):
+    def __init__(self, bs: list[tuple[MonoidElem, Universe]], id_val: Universe, sort_bs=False):
         self.root = PrefixTreeNode(MonoidElem.identity(), id_val)
-        [self.insert(*x) for x in sorted(bs)]
+        if sort_bs:
+            bs.sort()
+        [self.insert(*x) for x in bs]
         self.root._calc_following()
 
     def __repr__(self):
@@ -21,14 +23,12 @@ class PrefixTree:
     def find_node(self, string: MonoidElem):
         return self.root.find_node(string)
 
-    def insert(self, string: MonoidElem, value: Universe, skip_if_suff_not_exists=True):
+    def insert(self, string: MonoidElem, value: Universe):
         log(f'inserting {string}', lvl=2)
         if string.is_identity():
             return
-        pref, suff = self.root.find_node(
-            string.prefix()), self.root.find_node(string.suffix())
-        if pref is None or suff is None and skip_if_suff_not_exists:
-            return
+        pref = self.root.find_node(string.prefix())
+        assert pref is not None
         pref.attach(string, value)
 
     def delete(self, string: MonoidElem):

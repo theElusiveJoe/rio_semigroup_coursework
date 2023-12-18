@@ -41,10 +41,12 @@ class CrossingAlgo:
         log('CROSSING ALGO')
         self.sr1.draw_table()
         self.sr2.draw_table()
+
         self.grow_bs_prefix_tree()
         self.merge_cayley_graphs()
         self.setup_queue()
         self.calc_crossing()
+
         return self.to_sr()
 
     def to_sr(self):
@@ -52,6 +54,21 @@ class CrossingAlgo:
             self.mc,
             self.table,
             self.value_table
+        )
+
+    def grow_bs_prefix_tree(self):
+        # строим дерево базовых строк
+        log('TREE GROWING STARTED')
+
+        self.bs_A = PrefixTree(
+            bs=[(node.string, val)
+                for val, node in self.sr1.value_table.items() if val != self.mc.identity()],
+            id_val=self.mc.identity(),
+        )
+        self.bs_B = PrefixTree(
+            bs=[(node.string, val)
+                for val, node in self.sr2.value_table.items() if val != self.mc.identity()],
+            id_val=self.mc.identity(),
         )
 
     def merge_cayley_graphs(self):
@@ -96,21 +113,6 @@ class CrossingAlgo:
         self.table = {**self.sr1.table, **self.sr2.table}
         self.value_table = {**self.sr1.value_table, **self.sr2.value_table}
 
-    def grow_bs_prefix_tree(self):
-        # строим дерево базовых строк
-        log('TREE GROWING STARTED')
-
-        self.bs_A = PrefixTree(
-            bs=[(node.string, val)
-                for val, node in self.sr1.value_table.items() if val != self.mc.identity()],
-            id_val=self.mc.identity(),
-        )
-        self.bs_B = PrefixTree(
-            bs=[(node.string, val)
-                for val, node in self.sr2.value_table.items() if val != self.mc.identity()],
-            id_val=self.mc.identity(),
-        )
-
     def setup_queue(self):
         log('SETTING UP QUEUE')
         self.queue = Queue()
@@ -154,8 +156,8 @@ class CrossingAlgo:
                 log(f'add {next_qelem} to queue', lvl=3)
 
             switch_kind_nodes = self.another_bs_kind(
-                qelem.kind).root.succ.values()
-            succ_nodes = qelem.bs_node.succ.values()
+                qelem.kind).root.get_succ_nodes()
+            succ_nodes = qelem.bs_node.get_succ_nodes()
             log(f'switch kind variants: {list(map(attrgetter("string"), switch_kind_nodes))}', lvl=3)
             log(f'succ nodes variants: {list(map(attrgetter("string"), succ_nodes))}', lvl=3)
             sk_index, sn_index = 0, 0
@@ -195,7 +197,7 @@ class CrossingAlgo:
                     case _, _:
                         # сравниваем два варианта по последней букве
                         # print(f'cmp {switch_kind_nodes[sk_index].string} and {succ_nodes[sn_index].string.last()}')
-                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(): # type: ignore
+                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last():
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
                             sk_index += 1

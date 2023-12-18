@@ -9,7 +9,7 @@ from universes import Transformation
 
 
 def fill_tree(tree: PrefixTree, string: MonoidElem, sigma: list[int], l:int):
-    tree.insert(string, Transformation([]), skip_if_suff_not_exists=False)
+    tree.insert(string, Transformation([]))
     assert tree.find_node(string) is not None, print(f'insert failed {string}')
 
     if l == 0:
