@@ -7,7 +7,7 @@ from universes import Universe
 from monoid import MonoidController, MonoidElem
 from utils.logger import log
 
-from .bs_prefix_tree import PrefixTree, PrefixTreeNode
+from .bs_prefix_tree import PrefixTree
 from .crossing_queue import QueueElem, Queue
 from .semigroup_repr import SemigroupRepr
 from .military_algo import MilitaryAlgo
@@ -41,8 +41,8 @@ class CrossingAlgo:
         log('CROSSING ALGO')
         self.sr1.draw_table()
         self.sr2.draw_table()
-        self.merge_cayley_graphs()
         self.grow_bs_prefix_tree()
+        self.merge_cayley_graphs()
         self.setup_queue()
         self.calc_crossing()
         return self.to_sr()
@@ -82,6 +82,9 @@ class CrossingAlgo:
             del value_table[cv]
             table[node.string] = short_node
             log(f'link {node.string} to {short_node.string}', lvl=3)
+            self.bs_A.delete(node.string)
+            self.bs_B.delete(node.string)
+            log(f'delete {node.string} from prefix trees', lvl=3)
 
             # заменяем правила редукции
             for ls in node.linked_strings:
@@ -128,13 +131,13 @@ class CrossingAlgo:
                 kind=MonoidElemKind.B,
             )
         )
-        log(f'now queue is {self.queue}', lvl=2 )
+        log(f'now queue is {self.queue}', lvl=2)
 
     def calc_crossing(self):
         log('CROSSING STARTED')
         while len(self.queue) > 0:
-            # выдергиваем следующий из очереди      
-            log(f'now queue is {self.queue}', lvl=2 )
+            # выдергиваем следующий из очереди
+            log(f'now queue is {self.queue}', lvl=2)
 
             qelem = self.queue.pop()
             log(f'u = {qelem}', lvl=2)
@@ -192,8 +195,7 @@ class CrossingAlgo:
                     case _, _:
                         # сравниваем два варианта по последней букве
                         # print(f'cmp {switch_kind_nodes[sk_index].string} and {succ_nodes[sn_index].string.last()}')
-                        # type: ignore
-                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(): #type: ignore
+                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(): # type: ignore
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
                             sk_index += 1
