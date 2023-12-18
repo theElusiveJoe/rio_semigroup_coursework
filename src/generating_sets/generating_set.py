@@ -6,7 +6,8 @@ class GeneratingSet:
     mc: MonoidController
     sigma: list[int]
 
-    def __init__(self, mc: MonoidController, sigma: list[int], check_duplicates: bool = True):
+    def __init__(self, mc: MonoidController,
+                 sigma: list[int], check_duplicates: bool = True):
         self.mc = mc
         if check_duplicates:
             # фильтруем повторяющиеся значения
@@ -21,7 +22,8 @@ class GeneratingSet:
             self.sigma = sigma
 
     @staticmethod
-    def build_from_description(universe_type: type[Universe], *generators_desc):
+    def build_from_description(
+            universe_type: type[Universe], *generators_desc):
         generators = [universe_type(g) for g in generators_desc]
         return GeneratingSet(
             mc=MonoidController(generators),

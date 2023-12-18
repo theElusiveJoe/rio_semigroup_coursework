@@ -14,11 +14,11 @@ class Rule():
 
     def apply(self, target: MonoidElem):
         for i in range(len(target)):
-            if target.symbols[i:i+len(self)] == self.lhs.symbols:
+            if target.symbols[i:i + len(self)] == self.lhs.symbols:
                 return MonoidElem(
                     target.symbols[:i] +
                     self.rhs.symbols +
-                    target.symbols[i+len(self):]
+                    target.symbols[i + len(self):]
                 ), True
         return target, False
 
@@ -36,12 +36,13 @@ class RulesSystem:
 
     def __repr__(self):
         if self.mc is None:
-            return '#'*30 + '\n' + '\n'.join(map(repr, self.rules)) + '\n' + '#'*30 + '\n'
+            return '#' * 30 + '\n' + \
+                '\n'.join(map(repr, self.rules)) + '\n' + '#' * 30 + '\n'
 
-        s = '#'*30 + '\n'
+        s = '#' * 30 + '\n'
         for rule in self.rules:
             s += f'    {self.mc.to_string(rule.lhs)} -> {self.mc.to_string(rule.rhs)}\n'
-        s += '#'*30 + '\n'
+        s += '#' * 30 + '\n'
         return s
 
     def add_rule(self, lhs: MonoidElem, rhs: MonoidElem):

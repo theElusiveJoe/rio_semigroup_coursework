@@ -18,7 +18,7 @@ class Transformation(Universe):
     def __mul__(self, other: Transformation):
         new_elems = []
         for x in other.elems:
-            new_elems.append(self.elems[x-1])
+            new_elems.append(self.elems[x - 1])
 
         return Transformation(new_elems)
 
@@ -29,4 +29,4 @@ class Transformation(Universe):
         return hash(self.elems)
 
     def identity(self):
-        return Transformation([i for i in range(1, len(self)+1)])
+        return Transformation([i for i in range(1, len(self) + 1)])

@@ -26,7 +26,7 @@ class QueueElem:
 
     def get_value(self):
         return self.prefix_value * self.bs_node.value
-    
+
     def __lt__(self, o: QueueElem):
         return self.to_string() < o.to_string()
 

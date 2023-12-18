@@ -21,7 +21,7 @@ class MonoidElem:
         return MonoidElem(self.symbols + other.symbols)
 
     def __eq__(self, other: MonoidElem) -> bool:
-        assert type(other) == MonoidElem
+        assert isinstance(other, MonoidElem)
         return self.symbols == other.symbols
 
     def __hash__(self) -> int:
@@ -29,12 +29,13 @@ class MonoidElem:
 
     def __contains__(self, other):
         for i in range(len(self)):
-            if other.symbols == self.symbols[i:i+len(other)]:
+            if other.symbols == self.symbols[i:i + len(other)]:
                 return True
         return False
 
     def __lt__(self, o: MonoidElem):
-        return len(self) < len(o) or len(self) == len(o) and self.symbols < o.symbols
+        return len(self) < len(o) or len(self) == len(
+            o) and self.symbols < o.symbols
 
     def __gt__(self, o: MonoidElem):
         return o < self

@@ -33,7 +33,7 @@ class Algo:
 
     @staticmethod
     def log(lvl=1, str=''):
-        print('    '*(lvl-1) + '' + str)
+        print('    ' * (lvl - 1) + '' + str)
 
     def add_to_frontier(self, s: MonoidElem):
         new_elems = [s + MonoidElem.from_char(i) for i in range(self.k)]
@@ -79,7 +79,7 @@ class Algo:
             self.log(2, f'u val =  {u_val}')
             # такое значение уже есть
             u_min = self.look_up_base(u_val)
-            if u_min is not None and type(u_min) == MonoidElem:
+            if u_min is not None and isinstance(u_min, MonoidElem):
                 self.log(2, f'u val is not new')
                 self.rules.add_rule(u, u_min)
             # мы встретили новое значение

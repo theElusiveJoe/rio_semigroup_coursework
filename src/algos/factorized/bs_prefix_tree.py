@@ -10,7 +10,8 @@ from .bs_prefix_tree_node import PrefixTreeNode
 class PrefixTree:
     root: PrefixTreeNode
 
-    def __init__(self, bs: list[tuple[MonoidElem, Universe]], id_val: Universe, sort_bs=False):
+    def __init__(
+            self, bs: list[tuple[MonoidElem, Universe]], id_val: Universe, sort_bs=False):
         self.root = PrefixTreeNode(MonoidElem.identity(), id_val)
         if sort_bs:
             bs.sort()
@@ -46,7 +47,8 @@ class PrefixTree:
             yw_nodes = list(filter(None, [node.find_node(w_node.string)
                                           for node in self.root.get_succ_nodes()]))
 
-            return wx_strings | set(itertools.chain(*[rec_foo(node, ret_w=True) for node in yw_nodes if node is not None]))
+            return wx_strings | set(itertools.chain(
+                *[rec_foo(node, ret_w=True) for node in yw_nodes if node is not None]))
 
         w_node = self.find_node(w)
         if w_node is None:

@@ -158,8 +158,12 @@ class CrossingAlgo:
             switch_kind_nodes = self.another_bs_kind(
                 qelem.kind).root.get_succ_nodes()
             succ_nodes = qelem.bs_node.get_succ_nodes()
-            log(f'switch kind variants: {list(map(attrgetter("string"), switch_kind_nodes))}', lvl=3)
-            log(f'succ nodes variants: {list(map(attrgetter("string"), succ_nodes))}', lvl=3)
+            log(
+                f'switch kind variants: {list(map(attrgetter("string"), switch_kind_nodes))}',
+                lvl=3)
+            log(
+                f'succ nodes variants: {list(map(attrgetter("string"), succ_nodes))}',
+                lvl=3)
             sk_index, sn_index = 0, 0
 
             def next_switch_kind():
@@ -197,7 +201,8 @@ class CrossingAlgo:
                     case _, _:
                         # сравниваем два варианта по последней букве
                         # print(f'cmp {switch_kind_nodes[sk_index].string} and {succ_nodes[sn_index].string.last()}')
-                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last():
+                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(
+                        ):
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
                             sk_index += 1
@@ -242,7 +247,8 @@ class CrossingAlgo:
                     log('new_qelem_val is new: add to queue', lvl=5)
                     continue
 
-                # такое значение есть, и эта строка не превосходит уже найденную
+                # такое значение есть, и эта строка не превосходит уже
+                # найденную
                 if ua_min_node.string < ua:
                     log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
 

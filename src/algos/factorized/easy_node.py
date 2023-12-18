@@ -11,7 +11,7 @@ class MonoidElemKind(IntEnum):
     B = 1
 
     def another(self):
-        return MonoidElemKind((self+1) % 2)
+        return MonoidElemKind((self + 1) % 2)
 
 
 @dataclass

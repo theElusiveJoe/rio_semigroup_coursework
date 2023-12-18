@@ -20,7 +20,7 @@ class PrefixTreeNode:
         ss = []
         for next in self.succ.values():
             ss.append(f'{" "*2*lvl}{self.string} -> {next.string}')
-            ss += next.get_graph(lvl+1)
+            ss += next.get_graph(lvl + 1)
         return ss
 
     def get_succ_nodes(self) -> list[PrefixTreeNode]:
@@ -39,12 +39,13 @@ class PrefixTreeNode:
 
         return next_node.find_node(string.suffix())
 
-    def get_all_existing_postfix_superstrings(self, ret_self=False) -> set[MonoidElem]:
+    def get_all_existing_postfix_superstrings(
+            self, ret_self=False) -> set[MonoidElem]:
         res = set([self.string]) if ret_self else set()
 
         for next in self.succ.values():
             res |= next.get_all_existing_postfix_superstrings(ret_self=True)
-        
+
         return res
 
     def _calc_following(self):
@@ -53,7 +54,7 @@ class PrefixTreeNode:
             self.succ[x].following = self.succ[y]
 
         for s in self.succ.values():
-            assert type(s) == PrefixTreeNode
+            assert isinstance(s, PrefixTreeNode)
             s._calc_following()
 
     def first_succ(self) -> PrefixTreeNode:

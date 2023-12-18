@@ -6,8 +6,10 @@ from universes import Universe
 from .easy_node import EasyNode
 from .semigroup_repr import SemigroupRepr
 
+
 def log(x, lvl=1):
     pass
+
 
 class MilitaryAlgo:
     mc: MonoidController
@@ -61,7 +63,6 @@ class MilitaryAlgo:
             self.queue.append(new_node)
             log(f'add {new_node.string} -> {new_node.value}', lvl=2)
 
-
     def main_cycle(self):
         log('MILITARY STARTED')
         while len(self.queue) != 0:
@@ -70,7 +71,7 @@ class MilitaryAlgo:
 
             for i in self.sigma:
                 a = MonoidElem.from_char(i)
-                ua = u+a
+                ua = u + a
                 # log(f'{self.table}', lvl=2)
                 # log(f'{self.value_table}', lvl=2)
                 log(f'ua is {ua}', lvl=2)

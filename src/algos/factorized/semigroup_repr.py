@@ -7,7 +7,6 @@ from universes import Universe
 from .easy_node import EasyNode
 
 
-
 @dataclass
 class SemigroupRepr:
     mc: MonoidController
@@ -15,15 +14,16 @@ class SemigroupRepr:
     value_table: dict[Universe, EasyNode]
 
     def get_rules(self):
-        return {m: n.string for m, n in self.table.items() if n.value not in self.value_table}
+        return {m: n.string for m, n in self.table.items(
+        ) if n.value not in self.value_table}
 
     def draw_table(self):
         print('Table:')
-        for x,y in self.table.items():
+        for x, y in self.table.items():
             print(f'    {x} -> {y.string}')
 
     def get_srs(self):
-        return { k:v.string for k, v in self.table.items()}
+        return {k: v.string for k, v in self.table.items()}
 
-    def __eq__(self, o:SemigroupRepr):
+    def __eq__(self, o: SemigroupRepr):
         return self.get_srs() == o.get_srs()

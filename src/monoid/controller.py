@@ -15,14 +15,14 @@ class MonoidController:
 
         self.generators = seq
         self.names = [chr(i) for i in range(
-            ord('a'), ord('a')+len(self.generators))]
+            ord('a'), ord('a') + len(self.generators))]
 
     def identity(self) -> Universe:
         return self.generators[0].identity()
 
     def compare(self, e1: MonoidElem, e2: MonoidElem) -> int:
         '''
-        1 if e1 > e2 
+        1 if e1 > e2
         0 if e1 == e2
         -1 else
         '''
@@ -46,7 +46,7 @@ class MonoidController:
 
         res = elems[0]
         for x in elems[1:]:
-            res = res*x
+            res = res * x
 
         return res
 
@@ -66,9 +66,9 @@ class MonoidController:
         def loop(seq):
             if seq == []:
                 return [0]
-            if seq[-1] == len(self.generators)-1:
+            if seq[-1] == len(self.generators) - 1:
                 return loop(seq[:-1]) + [0]
-            return seq[:-1] + [seq[-1]+1]
+            return seq[:-1] + [seq[-1] + 1]
 
         ret = MonoidElem(loop(elem.symbols))
         return ret
