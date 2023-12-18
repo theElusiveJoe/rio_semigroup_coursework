@@ -1,5 +1,6 @@
 from __future__ import annotations
 import itertools
+from typing import Any
 
 from monoid import MonoidElem
 from universes import Universe
@@ -38,7 +39,7 @@ class PrefixTree:
             return
         del prefix.succ[string.last().letter()]
 
-    def search_superstrings(self, w: MonoidElem, ret_w=False):
+    def search_superstrings(self, w: MonoidElem):
         def rec_foo(w_node: PrefixTreeNode, ret_w=False):
             # {wx | x in SIGMA*}
             wx_strings = w_node.get_all_existing_postfix_superstrings(
@@ -55,3 +56,38 @@ class PrefixTree:
             return set()
 
         return rec_foo(w_node, ret_w=False)
+
+    def delete_all_superstrings_from_table_and_tree(self, w: MonoidElem, table: dict[MonoidElem, Any]):
+        def rec_foo(w_node: PrefixTreeNode, table: dict[MonoidElem, Any], rm_w=False):
+            # удаляем {wx | x in SIGMA*}
+            w_node.rm_all_super_prefixes_from_table_and_tree(
+                table, rm_self=rm_w)
+
+            # находим {yw_prefix | y in SIGMA}
+            w_prefix = w_node.string.prefix()
+            i = w_node.string.last().letter()
+            yw_prefix_nodes = list(filter(None, [node.find_node(w_prefix)
+                                          for node in self.root.get_succ_nodes()]))
+
+            for yw_prefix_node in yw_prefix_nodes:
+                yw_node = yw_prefix_node.get_succ(i)
+                if yw_node is None:
+                    continue
+                # отвязываем yw от yw_prefix
+                del yw_prefix_node.succ[i]
+
+                rec_foo(yw_node, table, rm_w=True)
+
+        w_pref_node = self.find_node(w.prefix())
+        if w_pref_node is None:
+            return
+
+        i = w.last().letter()
+        w_node = w_pref_node.get_succ(i)
+        if w_node is None:
+            return
+        # отвязываем w от w_prefix
+        del w_pref_node.succ[i]
+
+        # удалять w из таблицы не надо, т.к. w куда-то редуцируется
+        rec_foo(w_node, table, rm_w=False)

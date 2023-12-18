@@ -1,9 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from sortedcontainers import SortedDict
+from typing import Any
 
 from monoid import MonoidElem
 from universes import Universe
+from utils.logger import log
 
 
 @dataclass
@@ -23,6 +25,9 @@ class PrefixTreeNode:
             ss += next.get_graph(lvl + 1)
         return ss
 
+    def get_succ(self, i: int) -> PrefixTreeNode | None:
+        return self.succ.get(i)
+
     def get_succ_nodes(self) -> list[PrefixTreeNode]:
         return list(self.succ.values())
 
@@ -39,15 +44,6 @@ class PrefixTreeNode:
 
         return next_node.find_node(string.suffix())
 
-    def get_all_existing_postfix_superstrings(
-            self, ret_self=False) -> set[MonoidElem]:
-        res = set([self.string]) if ret_self else set()
-
-        for next in self.succ.values():
-            res |= next.get_all_existing_postfix_superstrings(ret_self=True)
-
-        return res
-
     def _calc_following(self):
         d = sorted(self.succ)
         for x, y in zip(d, d[1:]):
@@ -58,4 +54,26 @@ class PrefixTreeNode:
             s._calc_following()
 
     def first_succ(self) -> PrefixTreeNode:
-        return self.succ.values()[0]  # type: ignore
+        return self.get_succ_nodes()[0]
+
+    def get_all_existing_postfix_superstrings(
+            self, ret_self=False) -> set[MonoidElem]:
+        res = set([self.string]) if ret_self else set()
+
+        for next in self.succ.values():
+            res |= next.get_all_existing_postfix_superstrings(ret_self=True)
+
+        return res
+
+    def rm_all_super_prefixes_from_table_and_tree(
+            self, table: dict[MonoidElem, Any], rm_self=False):
+        if self.string not in table:
+            return
+        if rm_self:
+            log(f'rm {self.string} form table', lvl=3)
+            table[self.string].linked_strings.discard(self.string)
+            del table[self.string]
+
+
+        for next in self.succ.values():
+            next.rm_all_super_prefixes_from_table_and_tree(table, rm_self=True)

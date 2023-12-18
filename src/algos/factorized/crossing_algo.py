@@ -71,6 +71,12 @@ class CrossingAlgo:
             id_val=self.mc.identity(),
         )
 
+    def rm_bs_from_table_and_trees(self, string: MonoidElem, table: dict| None):
+        if table is None:
+            table = self.table
+        self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
+        self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
+
     def merge_cayley_graphs(self):
         values1, values2 = set(self.sr1.value_table.keys()), set(
             self.sr2.value_table.keys())
@@ -89,19 +95,26 @@ class CrossingAlgo:
             log(f'node1: {n1}', lvl=3)
             log(f'node2: {n2}', lvl=3)
             log(f'node1 {"<" if n1.string < n2.string else ">"} node2', lvl=3)
-            table, value_table, node, short_node = (
-                (self.sr2.table, self.sr2.value_table, n2, n1)
-                if n1.string < n2.string
-                else (self.sr1.table, self.sr1.value_table, n1, n2)
-            )
+
+            if n1.string < n2.string:
+                table, value_table = self.sr2.table, self.sr2.value_table
+                node, short_node = n2, n1
+                tree_with_big_string = self.bs_B
+            else:
+                table, value_table = self.sr1.table, self.sr1.value_table
+                node, short_node = n1, n2
+                tree_with_big_string = self.bs_A
+
 
             # убираем ноду из  таблицы значений
             del value_table[cv]
-            table[node.string] = short_node
+            # node.string -> short_node.string
             log(f'link {node.string} to {short_node.string}', lvl=3)
-            self.bs_A.delete(node.string)
-            self.bs_B.delete(node.string)
-            log(f'delete {node.string} from prefix trees', lvl=3)
+            table[node.string] = short_node
+            short_node.linked_strings.add(node.string)
+            # удаляем node.string из prefix_tree
+            log(f'rm {node.string} and all its superstrings from prefix trees', lvl=3)
+            tree_with_big_string.delete_all_superstrings_from_table_and_tree(node.string, table)
 
             # заменяем правила редукции
             for ls in node.linked_strings:
@@ -200,7 +213,6 @@ class CrossingAlgo:
                         sn_index += 1
                     case _, _:
                         # сравниваем два варианта по последней букве
-                        # print(f'cmp {switch_kind_nodes[sk_index].string} and {succ_nodes[sn_index].string.last()}')
                         if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last(
                         ):
                             # switch kind вариант предпочтительнее
@@ -271,12 +283,12 @@ class CrossingAlgo:
                 self.table[ua] = new_node
                 self.value_table[ua_val] = new_node
                 # старая строка редуцируется к новой
-                self.table[old_node.string] = new_node
                 log(f'link {old_node.string} to {ua}', lvl=5)
+                self.table[old_node.string] = new_node
                 # и все строки, которые к ней редуцировались - тоже
+                log(f'link {old_node.linked_strings} to {ua}', lvl=5)
                 for ls in old_node.linked_strings:
                     self.table[ls] = new_node
-                log(f'link {old_node.linked_strings} to {ua}', lvl=5)
                 # если старый узел содержал базовую строку,
                 # то эту базовую строку надо удалить из bs_tree,
                 # чтобы больше не использовать ни эту строку, ни ее потомков
