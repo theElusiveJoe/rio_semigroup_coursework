@@ -6,6 +6,6 @@ res
 /origins
 res*
 .venv/
-misc/
+legacy_trash
 report.md
 */check.*
