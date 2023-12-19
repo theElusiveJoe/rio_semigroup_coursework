@@ -26,6 +26,11 @@ class PrefixTreeNode:
             ss += next.get_graph(lvl + 1)
         return ss
 
+    def get_smallest_succ(self) -> PrefixTreeNode|None:
+        if len(self.succ) == 0:
+            return None
+        return self.succ.values()[0] # type: ignore
+
     def get_succ(self, i: int) -> PrefixTreeNode | None:
         return self.succ.get(i)
 

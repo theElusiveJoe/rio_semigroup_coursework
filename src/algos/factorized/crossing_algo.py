@@ -178,6 +178,7 @@ class CrossingAlgo:
                 log(f'add {next_qelem} to queue', lvl=3)
 
             # конструируем множества следующих строк
+            # нужно только для лога 
             switch_kind_nodes = self.another_bs_kind(
                 qelem.kind).root.get_succ_nodes()
             succ_nodes = qelem.bs_node.get_succ_nodes()
@@ -187,14 +188,16 @@ class CrossingAlgo:
             log(
                 f'succ nodes variants: {list(map(attrgetter("string"), succ_nodes))}',
                 lvl=3)
-            sk_index, sn_index = 0, 0
+            
+            sk_node = self.another_bs_kind(qelem.kind).root.get_smallest_succ()
+            succ_node = qelem.bs_node.get_smallest_succ()
 
             def next_switch_kind():
                 log('this is switch kind', lvl=4)
                 return QueueElem(
                     qelem.to_string(),
                     qelem.prefix_value * qelem.bs_node.value,
-                    switch_kind_nodes[sk_index],  # type: ignore
+                    sk_node,  # type: ignore
                     qelem.kind.another(),
                 )
 
@@ -203,34 +206,34 @@ class CrossingAlgo:
                 return QueueElem(
                     qelem.prefix,
                     qelem.prefix_value,
-                    succ_nodes[sn_index],  # type: ignore
+                    succ_node,  # type: ignore
                     qelem.kind,
                 )
 
             log('iterate succ and switch_kind', lvl=3)
             # перебераем все следующие строки
             while True:
-                match sk_index < len(switch_kind_nodes), sn_index < len(succ_nodes):
-                    case False, False:
+                match sk_node, succ_node:
+                    case None, None:
                         break
-                    case True, False:
+                    case _, None:
                         # switch kind
                         new_qelem = next_switch_kind()
-                        sk_index += 1
-                    case False, True:
+                        sk_node = sk_node.following # type: ignore
+                    case None, _:
                         # succ
                         new_qelem = next_succ()
-                        sn_index += 1
+                        succ_node = succ_node.following # type: ignore
                     case _, _:
                         # сравниваем два варианта по последней букве
-                        if switch_kind_nodes[sk_index].string < succ_nodes[sn_index].string.last():
+                        if sk_node.string.last() < succ_node.string.last(): # type: ignore
                             # switch kind вариант предпочтительнее
                             new_qelem = next_switch_kind()
-                            sk_index += 1
+                            sk_node = sk_node.following # type: ignore
                         else:
                             # succ вариант предпочтительнее
                             new_qelem = next_succ()
-                            sn_index += 1
+                            succ_node = succ_node.following # type: ignore  
 
                 log(f'ua = {new_qelem}', lvl=5)
 
