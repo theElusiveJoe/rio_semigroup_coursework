@@ -14,17 +14,21 @@ class SemigroupRepr:
     value_table: dict[Universe, EasyNode]
     sigma: set[int]
 
-    def get_rules(self):
-        return {m: n.string for m, n in self.table.items(
-        ) if n.value not in self.value_table}
+    # def get_rules(self):
+    #     return {m: n.string for m, n in self.table.items(
+    #     ) if n.value not in self.value_table}
 
-    def draw_table(self):
-        print('Table:')
-        for x, y in self.table.items():
-            print(f'    {x} -> {y.string}')
+    # def draw_table(self):
+    #     print('Table:')
+    #     for x, y in self.table.items():
+    #         print(f'    {x} -> {y.string}')
 
     def get_srs(self):
-        return {k: v.string for k, v in self.table.items()}
+        return dict(
+            (ls, node.string) 
+            for node in self.table.values()
+            for ls in node.linked_strings 
+        )
 
     def __eq__(self, o: SemigroupRepr):
         return self.get_srs() == o.get_srs()

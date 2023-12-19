@@ -1,11 +1,11 @@
 import sys
 sys.path.append(f'{sys.path[0]}/..')
 
-import samples
-from generating_sets import GeneratingSet, GeneratingSetsFamily
-from algos.factorized import MilitaryAlgo, CrossingAlgo
-from functools import reduce
 from pprint import pp
+from functools import reduce
+from algos.factorized import MilitaryAlgo, CrossingAlgo
+from generating_sets import GeneratingSet, GeneratingSetsFamily
+import samples
 
 
 def run_military_from_gsf(gsf: GeneratingSetsFamily):
@@ -22,14 +22,16 @@ def run_crossing_from_gsf(gsf: GeneratingSetsFamily):
 
 def run_crossing_sample(gsf: GeneratingSetsFamily):
     military_sr = run_military_from_gsf(gsf)
-
     base_sr = run_crossing_from_gsf(gsf)
-    base_sr.draw_table()
 
     srs_cross = base_sr.get_srs()
     srs_mil = military_sr.get_srs()
 
+    print('cross srs:')
     pp(srs_cross)
+
+    print('mil srs:')
+    pp(srs_mil)
 
     keys1 = set(srs_cross.keys())
     keys2 = set(srs_mil.keys())

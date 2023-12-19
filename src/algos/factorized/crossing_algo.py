@@ -40,17 +40,17 @@ class CrossingAlgo:
     def is_homogenious(self, string: MonoidElem):
         return all(map(lambda x: x in self.sr1.sigma, string.symbols)) or all(map(lambda x: x in self.sr2.sigma, string.symbols))
 
-
+    def string_in_one_of_trees(self, string: MonoidElem):
+        return bool(self.bs_A.find_node(string) or self.bs_B.find_node(string))
 
     def run(self):
         log('CROSSING ALGO')
-        self.sr1.draw_table()
-        self.sr2.draw_table()
 
         self.grow_bs_prefix_tree()
         self.merge_cayley_graphs()
         self.setup_queue()
         self.calc_crossing()
+        self.normalize_linked_strings()
 
         return self.to_sr()
 
@@ -255,6 +255,8 @@ class CrossingAlgo:
                 if sa_node is None:
                     log('new_qelem in is reducable: skip', lvl=5)
                     continue
+                
+                log(f'sa is {sa} and it is not reducable! {self.table.get(sa)}!=None', lvl=5)
 
                 # найдем значение ua
                 ua_val = new_qelem.get_value()
@@ -277,6 +279,7 @@ class CrossingAlgo:
                 # такое значение есть, и эта строка не превосходит уже
                 # найденную
                 if ua_min_node.string < ua:
+                    log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
                     log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
                     ua_min_node.heterogenic_linked_strings.add(ua)
                     log(
@@ -314,3 +317,12 @@ class CrossingAlgo:
 
                 # ну и добавляем в очередь
                 self.queue.add(new_qelem)
+    
+    def normalize_linked_strings(self):
+        for node in self.table.values():
+            node.linked_strings = set(filter(
+                lambda w: self.string_in_one_of_trees(w.prefix()) and self.string_in_one_of_trees(w.suffix()), 
+                node.linked_strings
+            ))
+            node.linked_strings |= node.heterogenic_linked_strings
+            node.heterogenic_linked_strings = set()
