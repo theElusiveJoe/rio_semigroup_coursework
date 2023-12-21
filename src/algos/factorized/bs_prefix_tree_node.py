@@ -77,7 +77,7 @@ class PrefixTreeNode:
         if self.string not in table:
             return
         if rm_self:
-            log(f'rm {self.string} form table', lvl=3)
+            # log(f'rm {self.string} form table', lvl=6)
             table[self.string].linked_strings.discard(self.string)
             del table[self.string]
 

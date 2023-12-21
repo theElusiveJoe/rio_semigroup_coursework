@@ -139,22 +139,47 @@ class CrossingAlgo:
         log('SETTING UP QUEUE')
         self.queue = Queue()
 
-        self.queue.add(
-            QueueElem(
-                prefix=MonoidElem.identity(),
-                prefix_value=self.mc.identity(),
-                bs_node=self.bs_A.root.first_succ(),
-                kind=MonoidElemKind.A,
+        q = list[QueueElem]()
+
+        for bs_node in self.bs_A.root.get_succ_nodes():
+            q.append(
+                QueueElem(
+                    prefix=MonoidElem.identity(),
+                    prefix_value=self.mc.identity(),
+                    bs_node=bs_node,
+                    kind=MonoidElemKind.A,
+                )
             )
-        )
-        self.queue.add(
-            QueueElem(
-                prefix=MonoidElem.identity(),
-                prefix_value=self.mc.identity(),
-                bs_node=self.bs_B.root.first_succ(),
-                kind=MonoidElemKind.B,
+        
+        for bs_node in self.bs_B.root.get_succ_nodes():
+            q.append(
+                QueueElem(
+                    prefix=MonoidElem.identity(),
+                    prefix_value=self.mc.identity(),
+                    bs_node=bs_node,
+                    kind=MonoidElemKind.B,
+                )
             )
-        )
+        
+        for qelem in sorted(q, key = lambda x: x.bs_node.string.last()):
+            self.queue.add(qelem)
+
+        # self.queue.add(
+        #     QueueElem(
+        #         prefix=MonoidElem.identity(),
+        #         prefix_value=self.mc.identity(),
+        #         bs_node=self.bs_A.root.first_succ(),
+        #         kind=MonoidElemKind.A,
+        #     )
+        # )
+        # self.queue.add(
+        #     QueueElem(
+        #         prefix=MonoidElem.identity(),
+        #         prefix_value=self.mc.identity(),
+        #         bs_node=self.bs_B.root.first_succ(),
+        #         kind=MonoidElemKind.B,
+        #     )
+        # )
         log(f'now queue is {self.queue}', lvl=2)
 
     def calc_crossing(self):
@@ -167,15 +192,15 @@ class CrossingAlgo:
             log(f'u = {qelem}', lvl=2)
 
             # добавляем following
-            if qelem.bs_node.following is not None:
-                next_qelem = QueueElem(
-                    prefix=qelem.prefix,
-                    prefix_value=qelem.prefix_value,
-                    bs_node=qelem.bs_node.following,
-                    kind=qelem.kind,
-                )
-                self.queue.add(next_qelem)
-                log(f'add {next_qelem} to queue', lvl=3)
+            # if qelem.bs_node.following is not None:
+            #     next_qelem = QueueElem(
+            #         prefix=qelem.prefix,
+            #         prefix_value=qelem.prefix_value,
+            #         bs_node=qelem.bs_node.following,
+            #         kind=qelem.kind,
+            #     )
+            #     self.queue.add(next_qelem)
+            #     log(f'add {next_qelem} to queue', lvl=3)
 
             # конструируем множества следующих строк
             # нужно только для лога 
@@ -239,7 +264,7 @@ class CrossingAlgo:
 
                 # ua - это базовая строка - т.е. prefix = eps
                 # ua только что вышел из prefix tree, 
-                # значит он точно никуда не редуцируется
+                # значит sa точно никуда не редуцируется
                 # и есть в таблицах
                 # просто добавим ее в очередь
                 if new_qelem.prefix.is_identity():
@@ -256,7 +281,7 @@ class CrossingAlgo:
                     log('new_qelem in is reducable: skip', lvl=5)
                     continue
                 
-                log(f'sa is {sa} and it is not reducable! {self.table.get(sa)}!=None', lvl=5)
+                log(f'sa is {sa} and it is not reducable!', lvl=5)
 
                 # найдем значение ua
                 ua_val = new_qelem.get_value()
@@ -279,8 +304,7 @@ class CrossingAlgo:
                 # такое значение есть, и эта строка не превосходит уже
                 # найденную
                 if ua_min_node.string < ua:
-                    log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
-                    log(f'{ua_min_node.string}, {ua} {"<" if ua_min_node.string < ua else ">"}', lvl=5)
+                    log(f'{ua_min_node.string} {"<" if ua_min_node.string < ua else ">"} {ua} ', lvl=5)
                     ua_min_node.heterogenic_linked_strings.add(ua)
                     log(
                         f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
@@ -312,10 +336,11 @@ class CrossingAlgo:
                 new_node.linked_strings.add(old_string)
                 
                 # удаляем old_string из prefix_tree
-                log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=3)
+                log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=5)
                 self.rm_bs_from_table_and_trees(old_string, self.table)
 
                 # ну и добавляем в очередь
+                log(f'add {new_qelem} to queue', lvl=5)
                 self.queue.add(new_qelem)
     
     def normalize_linked_strings(self):
