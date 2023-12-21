@@ -54,3 +54,26 @@ t5_rozen_broken = build_gsf(
     _t5_rozen_broken_1,
     _t5_rozen_broken_2,
 )
+
+
+'''
+две независимые полугруппы и переходики между ними
+'''
+
+sg1 = [
+    [2,1,3,4,5,6],
+    [2,3,1,4,5,6],
+    [1,1,3,4,5,6],
+]
+sg2 = [
+    [1,2,3,4,4,6],
+    [1,2,3,5,6,4],
+]
+transit = [
+    [4,5,6,1,2,3]
+]
+
+two_independend = build_gsf(
+    Transformation,
+    sg1,sg2,transit
+)
