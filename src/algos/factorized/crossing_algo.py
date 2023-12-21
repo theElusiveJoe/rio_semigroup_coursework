@@ -81,7 +81,7 @@ class CrossingAlgo:
         if table is None:
             table = self.table
         self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
-        self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
+        self.bs_B.delete_all_superstrings_from_table_and_tree(string, table)
 
     def merge_cayley_graphs(self):
         values1, values2 = set(self.sr1.value_table.keys()), set(
@@ -128,10 +128,6 @@ class CrossingAlgo:
 
         # соберем вместе две таблицы
         self.table = {**self.sr1.table, **self.sr2.table}
-        print('id ls:')
-        print(self.table[MonoidElem.identity()].linked_strings)
-        print(self.sr1.table[MonoidElem.identity()].linked_strings)
-        print(self.sr2.table[MonoidElem.identity()].linked_strings)
         self.value_table = {**self.sr1.value_table, **self.sr2.value_table}
 
     def setup_queue(self):
@@ -287,7 +283,7 @@ class CrossingAlgo:
                 # значит, ua_min_string - гомогенная
                 old_node = ua_min_node
                 log(
-                    f'string with such value exists {old_node.string}, but ua is less', lvl=5)
+                    f'string with such value exists {old_node.string}, but ua {ua} is less', lvl=5)
                 # создаем новый узел
                 new_node = EasyNode(
                     value=ua_val,
@@ -309,7 +305,6 @@ class CrossingAlgo:
                 
                 # удаляем old_string из prefix_tree
                 log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=5)
-                self.rm_bs_from_table_and_trees(old_string, self.table)
 
                 # ну и добавляем в очередь
                 log(f'add {new_qelem} to queue', lvl=5)
