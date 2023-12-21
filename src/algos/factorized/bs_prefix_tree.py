@@ -17,7 +17,6 @@ class PrefixTree:
         if sort_bs:
             bs.sort()
         [self.insert(*x) for x in bs]
-        self.root._calc_following()
 
     def __repr__(self):
         return '\n'.join(self.root.get_graph(1))
@@ -74,12 +73,6 @@ class PrefixTree:
                 if yw_node is None:
                     continue
                 # отвязываем w от w_prefix
-                # но сначала перевяжем following и preceding
-                if yw_node.preceding is not None: 
-                    yw_node.preceding.following = yw_node.following
-                if yw_node.following is not None: 
-                    yw_node.following.preceding = yw_node.preceding
-                # теперь можно отвязывать
                 del yw_prefix_node.succ[i]
 
                 rec_foo(yw_node, table, rm_w=True)
@@ -96,12 +89,6 @@ class PrefixTree:
         if w_node is None:
             return
         # отвязываем w от w_prefix
-        # но сначала перевяжем following и preceding
-        if w_pref_node.succ[i].preceding is not None: 
-            w_pref_node.succ[i].preceding.following = w_pref_node.succ[i].following
-        if w_pref_node.succ[i].following is not None: 
-            w_pref_node.succ[i].following.preceding = w_pref_node.succ[i].preceding
-        # теперь можно отвязывать
         del w_pref_node.succ[i]
 
         rec_foo(w_node, table, rm_w=True)

@@ -22,7 +22,6 @@ def fill_tree(tree: PrefixTree, string: MonoidElem, sigma: list[int], l: int):
 sigma = [1, 2, 3]
 tree = PrefixTree([], Transformation([]))
 fill_tree(tree, MonoidElem.identity(), sigma, 5)
-tree.root._calc_following()
 print(tree)
 w = MonoidElem([1])
 

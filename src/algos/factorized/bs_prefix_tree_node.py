@@ -13,8 +13,6 @@ class PrefixTreeNode:
     string: MonoidElem
     value: Universe
     succ: SortedDict = field(default_factory=SortedDict)
-    following: PrefixTreeNode | None = None
-    preceding: PrefixTreeNode | None = None
 
     def __repr__(self):
         return f'Node({self.string})'
@@ -26,7 +24,7 @@ class PrefixTreeNode:
         ss = []
         for next in self.succ.values():
             ss.append(
-                f'{" "*2*lvl}{self.string} -> {next.string}( {next.preceding}, {next.following} )')
+                f'{" "*2*lvl}{self.string} -> {next.string}')
             ss += next.get_graph(lvl + 1)
         return ss
 
@@ -69,16 +67,6 @@ class PrefixTreeNode:
             return None
 
         return next_node.find_node(string.suffix())
-
-    def _calc_following(self):
-        d = sorted(self.succ)
-        for x, y in zip(d, d[1:]):
-            self.succ[x].following = self.succ[y]
-            self.succ[y].preceding = self.succ[x]
-
-        for s in self.succ.values():
-            assert isinstance(s, PrefixTreeNode)
-            s._calc_following()
 
     def get_all_existing_postfix_superstrings(
             self, ret_self=False) -> set[MonoidElem]:
