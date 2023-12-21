@@ -20,21 +20,41 @@ class PrefixTreeNode:
         return f'Node({self.string})'
 
     def get_graph(self, lvl):
+        '''
+        возвращает список строк, описывающих данное поддерево
+        '''
         ss = []
         for next in self.succ.values():
-            ss.append(f'{" "*2*lvl}{self.string} -> {next.string}( {next.preceding}, {next.following} )')
+            ss.append(
+                f'{" "*2*lvl}{self.string} -> {next.string}( {next.preceding}, {next.following} )')
             ss += next.get_graph(lvl + 1)
         return ss
 
-    def get_smallest_succ(self) -> PrefixTreeNode|None:
-        if len(self.succ) == 0:
-            return None
-        return self.succ.values()[0] # type: ignore
-
     def get_succ(self, i: int) -> PrefixTreeNode | None:
+        '''
+        обертка для метода get словаря succ
+        '''
         return self.succ.get(i)
 
+    def get_first_succ(self) -> PrefixTreeNode | None:
+        '''
+        возвращшает потомка с минимальной подстрокой.
+        если потомков нет, то None
+        '''
+        if len(self.succ) == 0:
+            return None
+        return self.succ.values()[0]  # type: ignore
+
+    def get_succ_keys(self) -> list[int]:
+        '''
+        возвращает сортированный список ключей словаря succ
+        '''
+        return list(self.succ.keys())
+
     def get_succ_nodes(self) -> list[PrefixTreeNode]:
+        '''
+        возвращает сортированный список значений словаря succ
+        '''
         return list(self.succ.values())
 
     def attach(self, string: MonoidElem, value: Universe):
@@ -60,9 +80,6 @@ class PrefixTreeNode:
             assert isinstance(s, PrefixTreeNode)
             s._calc_following()
 
-    def first_succ(self) -> PrefixTreeNode:
-        return self.get_succ_nodes()[0]
-
     def get_all_existing_postfix_superstrings(
             self, ret_self=False) -> set[MonoidElem]:
         res = set([self.string]) if ret_self else set()
@@ -77,10 +94,8 @@ class PrefixTreeNode:
         if self.string not in table:
             return
         if rm_self:
-            # log(f'rm {self.string} form table', lvl=6)
             table[self.string].linked_strings.discard(self.string)
             del table[self.string]
-
 
         for next in self.succ.values():
             next.rm_all_super_prefixes_from_table_and_tree(table, rm_self=True)

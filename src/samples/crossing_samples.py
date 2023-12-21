@@ -137,9 +137,8 @@ def gen_2_semigs(l1: int, l2:int, s1: int, s2: int, s3: int):
 '''
 
 
-def gen_2_random(t: int, s1: int, s2:int):
+def gen_n_random(t: int, n: list[int]):
     return build_gsf(
         Transformation,
-        [random_list(1, t, t) for _ in range(s1)],
-        [random_list(1, t, t) for _ in range(s2)],
+        *[[random_list(1, t, t) for _ in range(ni)] for ni in n],
     )
