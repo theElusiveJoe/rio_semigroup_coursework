@@ -25,10 +25,10 @@ def cmp_to_military(res: SemigroupRepr, gsf: GeneratingSetsFamily):
         return
 
     print('cross srs:')
-    pp(srs_cross)
+    pp([f'    {k} -> {srs_cross[k]}' for k in sorted(srs_cross)])
 
     print('mil srs:')
-    pp(srs_mil)
+    pp([f'    {k} -> {srs_mil[k]}' for k in sorted(srs_mil)])
 
     keys1 = set(srs_cross.keys())
     keys2 = set(srs_mil.keys())

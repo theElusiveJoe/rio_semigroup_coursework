@@ -93,14 +93,12 @@ class MilitaryAlgo:
                         value=ua_val,
                         string=ua
                     )
+                    log(f'ua_val is new: create new node', lvl=3)
                     self.table[ua] = new_node
                     self.value_table[ua_val] = new_node
                     self.queue.append(new_node)
-                    log(f'ua_val is new: create new node', lvl=3)
 
                 # значение не новое, надо редуцировать
                 else:
-                    # IGNORE LINKED STRINGS
-                    # self.table[ua] = min_node
+                    log(f'ua_val exists: reduce to {min_node.string}', lvl=3)
                     min_node.linked_strings.add(ua)
-                    log(f'ua_val exists: reduce', lvl=3)
