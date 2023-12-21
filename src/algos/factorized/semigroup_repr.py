@@ -14,15 +14,6 @@ class SemigroupRepr:
     value_table: dict[Universe, EasyNode]
     sigma: set[int]
 
-    # def get_rules(self):
-    #     return {m: n.string for m, n in self.table.items(
-    #     ) if n.value not in self.value_table}
-
-    # def draw_table(self):
-    #     print('Table:')
-    #     for x, y in self.table.items():
-    #         print(f'    {x} -> {y.string}')
-
     def get_srs(self):
         return dict(
             (ls, node.string) 

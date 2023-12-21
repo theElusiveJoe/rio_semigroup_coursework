@@ -164,22 +164,6 @@ class CrossingAlgo:
         for qelem in sorted(q, key = lambda x: x.bs_node.string.last()):
             self.queue.add(qelem)
 
-        # self.queue.add(
-        #     QueueElem(
-        #         prefix=MonoidElem.identity(),
-        #         prefix_value=self.mc.identity(),
-        #         bs_node=self.bs_A.root.first_succ(),
-        #         kind=MonoidElemKind.A,
-        #     )
-        # )
-        # self.queue.add(
-        #     QueueElem(
-        #         prefix=MonoidElem.identity(),
-        #         prefix_value=self.mc.identity(),
-        #         bs_node=self.bs_B.root.first_succ(),
-        #         kind=MonoidElemKind.B,
-        #     )
-        # )
         log(f'now queue is {self.queue}', lvl=2)
 
     def calc_crossing(self):
@@ -190,17 +174,6 @@ class CrossingAlgo:
 
             qelem = self.queue.pop()
             log(f'u = {qelem}', lvl=2)
-
-            # добавляем following
-            # if qelem.bs_node.following is not None:
-            #     next_qelem = QueueElem(
-            #         prefix=qelem.prefix,
-            #         prefix_value=qelem.prefix_value,
-            #         bs_node=qelem.bs_node.following,
-            #         kind=qelem.kind,
-            #     )
-            #     self.queue.add(next_qelem)
-            #     log(f'add {next_qelem} to queue', lvl=3)
 
             # конструируем множества следующих строк
             # нужно только для лога 
