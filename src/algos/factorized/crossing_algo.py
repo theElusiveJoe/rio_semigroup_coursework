@@ -77,9 +77,7 @@ class CrossingAlgo:
             id_val=self.mc.identity(),
         )
 
-    def rm_bs_from_table_and_trees(self, string: MonoidElem, table: dict | None):
-        if table is None:
-            table = self.table
+    def rm_bs_from_table_and_trees(self, string: MonoidElem, table: dict):
         self.bs_A.delete_all_superstrings_from_table_and_tree(string, table)
         self.bs_B.delete_all_superstrings_from_table_and_tree(string, table)
 
@@ -123,6 +121,7 @@ class CrossingAlgo:
 
             # удаляем node.string из prefix_tree
             log(f'rm {node.string} and all its superstrings from prefix trees and table', lvl=3)
+            self.rm_bs_from_table_and_trees(node.string, table)
             tree_with_big_string.delete_all_superstrings_from_table_and_tree(
                 node.string, table)
 
@@ -305,6 +304,7 @@ class CrossingAlgo:
                 
                 # удаляем old_string из prefix_tree
                 log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=5)
+                self.rm_bs_from_table_and_trees(old_string, self.table)
 
                 # ну и добавляем в очередь
                 log(f'add {new_qelem} to queue', lvl=5)
