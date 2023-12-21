@@ -25,6 +25,8 @@ class GeneratingSet:
     def build_from_description(
             universe_type: type[Universe], *generators_desc):
         generators = [universe_type(g) for g in generators_desc]
+        id_elem = generators[0].identity()
+        generators = list(filter(lambda x: x != id_elem, generators))
         return GeneratingSet(
             mc=MonoidController(generators),
             sigma=[i for i in range(len(generators))]

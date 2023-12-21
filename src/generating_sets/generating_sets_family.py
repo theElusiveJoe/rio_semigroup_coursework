@@ -35,6 +35,11 @@ class GeneratingSetsFamily:
             [universe_type(g) for g in gl]
             for gl in generators_desc
         ]
+        identity = generators[0][0].identity()
+        generators = [
+            list(filter(lambda x: x != identity, gl))
+            for gl in generators
+        ]
         mc = MonoidController(list(itertools.chain(*generators)))
         lens_cs = cumsum(list(map(len, generators))).tolist()
         sigmas = [
