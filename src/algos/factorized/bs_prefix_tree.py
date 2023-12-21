@@ -84,6 +84,9 @@ class PrefixTree:
 
                 rec_foo(yw_node, table, rm_w=True)
 
+        if w.is_identity():
+            return
+        
         w_pref_node = self.find_node(w.prefix())
         if w_pref_node is None:
             return

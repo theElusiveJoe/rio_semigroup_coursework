@@ -86,8 +86,8 @@ class CrossingAlgo:
     def merge_cayley_graphs(self):
         values1, values2 = set(self.sr1.value_table.keys()), set(
             self.sr2.value_table.keys())
-        values1.discard(self.mc.identity())
-        values2.discard(self.mc.identity())
+        # values1.discard(self.mc.identity())
+        # values2.discard(self.mc.identity())
         common_values = values1.intersection(values2)
 
         log(f'values A: {values1}', lvl=2)
@@ -116,9 +116,8 @@ class CrossingAlgo:
 
             # node.string -> short_node.string
             log(f'link {node.string} to {short_node.string}', lvl=3)
-            # IGNORE LINKED STRINGS
-            # table[node.string] = short_node
-            short_node.linked_strings.add(node.string)
+            if not short_node.string.is_identity():
+                short_node.linked_strings.add(node.string)
             log(f'link {node.linked_strings} to {short_node.string}', lvl=3)
             short_node.linked_strings |= node.linked_strings
 
@@ -127,12 +126,12 @@ class CrossingAlgo:
             tree_with_big_string.delete_all_superstrings_from_table_and_tree(
                 node.string, table)
 
-            # IGNORE LINKED STRINGS
-            # for ls in node.linked_strings:
-                # table[ls] = short_node
-
         # соберем вместе две таблицы
         self.table = {**self.sr1.table, **self.sr2.table}
+        print('id ls:')
+        print(self.table[MonoidElem.identity()].linked_strings)
+        print(self.sr1.table[MonoidElem.identity()].linked_strings)
+        print(self.sr2.table[MonoidElem.identity()].linked_strings)
         self.value_table = {**self.sr1.value_table, **self.sr2.value_table}
 
     def setup_queue(self):

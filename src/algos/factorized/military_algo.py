@@ -1,14 +1,10 @@
 from pprint import pp, pformat
 from monoid import MonoidController, MonoidElem
 from universes import Universe
-# from utils.logger import log
+from utils.logger import log
 
 from .easy_node import EasyNode
 from .semigroup_repr import SemigroupRepr
-
-
-def log(x, lvl=1):
-    pass
 
 
 class MilitaryAlgo:
