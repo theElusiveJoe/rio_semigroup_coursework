@@ -27,6 +27,9 @@ class GeneratingSetsFamily:
 
     def __len__(self):
         return len(self.sigmas)
+    
+    def __repr__(self) -> str:
+        return '\n'.join(map(str, [[self.mc.generators[i] for i in sig]for sig in self.sigmas]))
 
     @staticmethod
     def build_from_description(

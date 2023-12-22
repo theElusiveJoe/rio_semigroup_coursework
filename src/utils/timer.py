@@ -7,5 +7,5 @@ def timer(func):
         result = func(*args, **kwargs)
         t2 = time()
         print(f'Function {func.__name__!r} executed in {(t2-t1):.4f}s')
-        return result
+        return result, t2-t1
     return wrap_func

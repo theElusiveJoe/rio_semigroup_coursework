@@ -1,7 +1,9 @@
 from pprint import pp, pformat
+from tqdm import tqdm
+
 from monoid import MonoidController, MonoidElem
 from universes import Universe
-from utils.logger import log
+from utils.logger import log, LogFlags
 
 from .easy_node import EasyNode
 from .semigroup_repr import SemigroupRepr
@@ -23,7 +25,7 @@ class MilitaryAlgo:
         self.value_table = {}
 
     def run(self):
-        log('MILITARY ALGO')
+        log('MILITARY ALGO STARTED', flags=LogFlags.BRIEF_AND_DET)
         log(f'sigma is {self.sigma}', lvl=2)
         self.setup()
         self.main_cycle()
@@ -38,7 +40,7 @@ class MilitaryAlgo:
         )
 
     def setup(self):
-        log('SETUP STARTED')
+        log('phase started: SET UP', flags=LogFlags.DETAILED)
         id_node = EasyNode(
             value=self.mc.identity(),
             string=MonoidElem.identity(),
@@ -61,8 +63,13 @@ class MilitaryAlgo:
             log(f'add {new_node.string} -> {new_node.value}', lvl=2)
 
     def main_cycle(self):
-        log('MILITARY STARTED')
-        while len(self.queue) != 0:
+        log('phase started: MAIN CYCLE', flags=LogFlags.DETAILED)
+
+        def generator():
+            while len(self.queue) > 0:
+                yield
+
+        for _ in tqdm(generator()):
             u_node = self.queue.pop(0)
             u = u_node.string
 

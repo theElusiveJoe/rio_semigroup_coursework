@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from operator import attrgetter
 from pprint import pp
+from tqdm import tqdm
 
 from universes import Universe
 from monoid import MonoidController, MonoidElem
-from utils.logger import log
+from utils.logger import log, LogFlags
 
 from .bs_prefix_tree import PrefixTree
 from .crossing_queue import QueueElem, Queue
@@ -44,13 +45,15 @@ class CrossingAlgo:
         return bool(self.bs_A.find_node(string) or self.bs_B.find_node(string))
 
     def run(self):
-        log('CROSSING ALGO')
+        log('CROSSING ALGO STARTED', flags=LogFlags.BRIEF_AND_DET)
 
         self.grow_bs_prefix_tree()
         self.merge_cayley_graphs()
         self.setup_queue()
         self.calc_crossing()
         self.normalize_linked_strings()
+
+        log('CROSSING ALGO FINISHED', flags=LogFlags.DETAILED)
 
         return self.to_sr()
 
@@ -64,7 +67,7 @@ class CrossingAlgo:
 
     def grow_bs_prefix_tree(self):
         # строим дерево базовых строк
-        log('TREE GROWING STARTED')
+        log('phase started: TREE GROWING', flags=LogFlags.DETAILED)
 
         self.bs_A = PrefixTree(
             bs=[(node.string, val)
@@ -94,7 +97,7 @@ class CrossingAlgo:
         log(f'values B: {values2}', lvl=2)
         log(f'values COMMON: {common_values}', lvl=2)
 
-        log('MERGE STARTED')
+        log('phase started: MERGE', flags=LogFlags.DETAILED)
         for cv in common_values:
             log(f'cv: {cv}', lvl=2)
             n1, n2 = self.sr1.value_table[cv], self.sr2.value_table[cv]
@@ -132,7 +135,7 @@ class CrossingAlgo:
         self.value_table = {**self.sr1.value_table, **self.sr2.value_table}
 
     def setup_queue(self):
-        log('SETTING UP QUEUE')
+        log('phase started: QUEUE SET UP', flags=LogFlags.DETAILED)
         self.queue = Queue()
 
         q = list[QueueElem]()
@@ -163,11 +166,15 @@ class CrossingAlgo:
         log(f'now queue is {self.queue}', lvl=2)
 
     def calc_crossing(self):
-        log('CROSSING STARTED')
-        while len(self.queue) > 0:
+        log('phase started: CROSSING', flags=LogFlags.DETAILED)
+
+        def generator():
+            while len(self.queue) > 0:
+                yield
+
+        for _ in tqdm(generator()):
             # выдергиваем следующий из очереди
             log(f'now queue is {self.queue}', lvl=2)
-
             qelem = self.queue.pop()
             log(f'u = {qelem}', lvl=2)
 
@@ -321,6 +328,8 @@ class CrossingAlgo:
                 self.queue.add(new_qelem)
 
     def normalize_linked_strings(self):
+        log('phase started: LINKED STRINGS NORMALIZATION', flags=LogFlags.DETAILED)
+
         for node in self.table.values():
             node.linked_strings = set(filter(
                 lambda w: self.string_in_one_of_trees(
