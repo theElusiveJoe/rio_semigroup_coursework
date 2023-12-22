@@ -25,8 +25,8 @@ class MilitaryAlgo:
         self.value_table = {}
 
     def run(self):
-        log('MILITARY ALGO STARTED', flags=LogFlags.BRIEF_AND_DET)
-        log(f'sigma is {self.sigma}', lvl=2)
+        log(lambda: 'MILITARY ALGO STARTED', flags=LogFlags.BRIEF_AND_DET)
+        log(lambda: f'sigma is {self.sigma}', lvl=2)
         self.setup()
         self.main_cycle()
         return self.to_sr()
@@ -40,14 +40,14 @@ class MilitaryAlgo:
         )
 
     def setup(self):
-        log('phase started: SET UP', flags=LogFlags.DETAILED)
+        log(lambda: 'phase started: SET UP', flags=LogFlags.DETAILED)
         id_node = EasyNode(
             value=self.mc.identity(),
             string=MonoidElem.identity(),
         )
         self.table[MonoidElem.identity()] = id_node
         self.value_table[self.mc.identity()] = id_node
-        log(f'add {id_node.string} -> {id_node.value}', lvl=2)
+        log(lambda: f'add {id_node.string} -> {id_node.value}', lvl=2)
 
         self.queue = []
         for i in self.sigma:
@@ -60,10 +60,10 @@ class MilitaryAlgo:
             self.table[a] = new_node
             self.value_table[a_val] = new_node
             self.queue.append(new_node)
-            log(f'add {new_node.string} -> {new_node.value}', lvl=2)
+            log(lambda: f'add {new_node.string} -> {new_node.value}', lvl=2)
 
     def main_cycle(self):
-        log('phase started: MAIN CYCLE', flags=LogFlags.DETAILED)
+        log(lambda: 'phase started: MAIN CYCLE', flags=LogFlags.DETAILED)
 
         def generator():
             while len(self.queue) > 0:
@@ -76,17 +76,17 @@ class MilitaryAlgo:
             for i in self.sigma:
                 a = MonoidElem.from_char(i)
                 ua = u + a
-                # log(f'{self.table}', lvl=2)
-                # log(f'{self.value_table}', lvl=2)
-                log(f'ua is {ua}', lvl=2)
-                log(f'ua_val is {self.mc.evaluate(ua)}', lvl=2)
+                # log(lambda: f'{self.table}', lvl=2)
+                # log(lambda: f'{self.value_table}', lvl=2)
+                log(lambda: f'ua is {ua}', lvl=2)
+                log(lambda: f'ua_val is {self.mc.evaluate(ua)}', lvl=2)
                 sa = ua.suffix()
 
                 sa_node = self.table.get(sa)
 
                 # sa уже куда-то редуцируется
                 if sa_node is None or sa_node.string != sa:
-                    log(f'sa reduces somewhere: just skip', lvl=3)
+                    log(lambda: f'sa reduces somewhere: just skip', lvl=3)
                     continue
 
                 # вычисляем значение
@@ -100,12 +100,12 @@ class MilitaryAlgo:
                         value=ua_val,
                         string=ua
                     )
-                    log(f'ua_val is new: create new node', lvl=3)
+                    log(lambda: f'ua_val is new: create new node', lvl=3)
                     self.table[ua] = new_node
                     self.value_table[ua_val] = new_node
                     self.queue.append(new_node)
 
                 # значение не новое, надо редуцировать
                 else:
-                    log(f'ua_val exists: reduce to {min_node.string}', lvl=3)
+                    log(lambda: f'ua_val exists: reduce to {min_node.string}', lvl=3) # type: ignore
                     min_node.linked_strings.add(ua)

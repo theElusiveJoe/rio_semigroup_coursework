@@ -2,6 +2,7 @@ import logging
 from logging import StreamHandler
 import sys
 from enum import IntEnum
+from typing import Callable
 
 
 class LogFlags(IntEnum):
@@ -20,8 +21,9 @@ class _MyLogger:
         self.l.setLevel(logging.INFO)
         self.l.addHandler(StreamHandler(stream=sys.stdout))
 
-    def log(self, s: str, lvl: int, flags: int):
+    def log(self, s_func: Callable[[],str], lvl: int, flags: int):
         if self.enabled_lvl & flags:
+            s = s_func()
             s = f"{' '*4*(lvl-1)}-> {s}"
             self.l.info(s)
 
@@ -29,9 +31,9 @@ class _MyLogger:
 _logger_instance = _MyLogger()
 
 
-def log(s: str, lvl: int = 1, flags: int = LogFlags.DETAILED):
+def log(s_func: Callable[[],str], lvl: int = 1, flags: int = LogFlags.DETAILED):
     assert lvl > 0
-    _logger_instance.log(s, lvl, flags)
+    _logger_instance.log(s_func, lvl, flags)
 
 
 def set_log_lvl(flags: LogFlags):
