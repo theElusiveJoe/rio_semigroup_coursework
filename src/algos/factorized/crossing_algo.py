@@ -8,26 +8,26 @@ from dataclasses import dataclass, field
 from universes import Universe
 from monoid import MonoidController, MonoidElem
 from utils.logger import log, LogFlags
+from utils.timer import timer
 
 from .bs_prefix_tree import PrefixTree
-from .crossing_queue import QueueElem, Queue
+from .queue import QueueElem, Queue
 from .semigroup_repr import SemigroupRepr
-from .military_algo import MilitaryAlgo
 from .easy_node import EasyNode, MonoidElemKind
 
 
-class DictWrapper(dict):
+class DictWrapper(dict[MonoidElem, EasyNode]):
     lookups_counter: int
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.lookups_counter = 0
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> EasyNode:
         self.lookups_counter += 1
-        return super().get(key)
-    
-    def get(self, key):
+        return super().__getitem__(key)
+
+    def get(self, key) -> EasyNode | None:
         self.lookups_counter += 1
         return super().get(key)
 
@@ -65,9 +65,6 @@ class CrossingAlgo:
             MonoidElemKind.A: self.bs_B,
             MonoidElemKind.B: self.bs_A,
         }[kind]
-
-    def is_homogenious(self, string: MonoidElem):
-        return all(map(lambda x: x in self.sr1.sigma, string.symbols)) or all(map(lambda x: x in self.sr2.sigma, string.symbols))
 
     def string_in_one_of_trees(self, string: MonoidElem):
         return bool(self.bs_A.find_node(string) or self.bs_B.find_node(string))
@@ -273,9 +270,9 @@ class CrossingAlgo:
                 else:
                     new_qelem = next_succ()
                     succ_index += 1
-                at.checked_real +=1
 
                 log(f'ua = {new_qelem}', lvl=5)
+                at.checked_real += 1
 
                 # ua - это базовая строка - т.е. prefix = eps
                 # ua только что вышел из prefix tree,
@@ -285,7 +282,7 @@ class CrossingAlgo:
                 if new_qelem.prefix.is_identity():
                     self.queue.add(new_qelem)
                     log('new_qelem in basic strings: just add it to queue', lvl=5)
-                    at.skipped_as_bs +=1
+                    at.skipped_as_bs += 1
                     continue
 
                 ua = new_qelem.to_string()
@@ -295,7 +292,7 @@ class CrossingAlgo:
                 # sa редуцируема, если ее нет в таблице
                 if sa_node is None:
                     log('new_qelem in is reducable: skip', lvl=5)
-                    at.reduced_by_str+=1
+                    at.reduced_by_str += 1
                     continue
 
                 log(f'sa is {sa} and it is not reducable!', lvl=5)
@@ -316,7 +313,7 @@ class CrossingAlgo:
                     # добавляем новую строку в очередь
                     self.queue.add(new_qelem)
                     log('new_qelem_val is new: add to queue', lvl=5)
-                    at.new_values_found+=1
+                    at.new_values_found += 1
                     continue
 
                 # такое значение есть, и эта строка не превосходит уже
@@ -326,7 +323,7 @@ class CrossingAlgo:
                     ua_min_node.heterogenic_linked_strings.add(ua)
                     log(
                         f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
-                    at.reduced_by_value+=1
+                    at.reduced_by_value += 1
                     continue
                 # такое значение есть,
                 # ua < ua_min_string
@@ -365,11 +362,8 @@ class CrossingAlgo:
 
         log(f'total table lookups: {self.table.lookups_counter}',
             lvl=2, flags=LogFlags.BRIEF_AND_DET)
-        # log(f'action tracker: {pformat(at)}', lvl=2, flags=LogFlags.BRIEF_AND_DET)
         pp(at)
 
-        if at.checked_real < at.expect_to_check:
-            raise RuntimeError('aboba')
     def normalize_linked_strings(self):
         log('phase started: LINKED STRINGS NORMALIZATION', flags=LogFlags.DETAILED)
 

@@ -25,7 +25,7 @@ class MonoidElem:
         return self.symbols == other.symbols
 
     def __hash__(self) -> int:
-        return 0 if not self.symbols else self.symbols[-1]
+        return hash(tuple(self.symbols))
 
     def __contains__(self, other):
         for i in range(len(self)):
