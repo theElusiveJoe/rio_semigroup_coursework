@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from operator import attrgetter
-from pprint import pp
+from pprint import pp, pformat
 from tqdm import tqdm
+from dataclasses import dataclass, field
 
 from universes import Universe
 from monoid import MonoidController, MonoidElem
@@ -15,9 +16,36 @@ from .military_algo import MilitaryAlgo
 from .easy_node import EasyNode, MonoidElemKind
 
 
+class DictWrapper(dict):
+    lookups_counter: int
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lookups_counter = 0
+
+    def __getitem__(self, key):
+        self.lookups_counter += 1
+        return super().get(key)
+    
+    def get(self, key):
+        self.lookups_counter += 1
+        return super().get(key)
+
+
+@dataclass
+class ActionTracker:
+    expect_to_check: int = field(default=0)
+    checked_real: int = field(default=0)
+    skipped_as_bs: int = field(default=0)
+    reduced_by_str: int = field(default=0)
+    reduced_by_value: int = field(default=0)
+    replaced_old_strings: int = field(default=0)
+    new_values_found: int = field(default=0)
+
+
 class CrossingAlgo:
     mc: MonoidController
-    table: dict[MonoidElem, EasyNode]
+    table: DictWrapper
     value_table: dict[Universe, EasyNode]
 
     sr1: SemigroupRepr
@@ -60,7 +88,7 @@ class CrossingAlgo:
     def to_sr(self):
         return SemigroupRepr(
             self.mc,
-            self.table,
+            dict(self.table),
             self.value_table,
             self.sr1.sigma | self.sr2.sigma
         )
@@ -71,13 +99,13 @@ class CrossingAlgo:
 
         self.bs_A = PrefixTree(
             bs=[(node.string, val)
-                for val, node in sorted(self.sr1.value_table.items(), key=lambda pair: pair[1].string) 
+                for val, node in sorted(self.sr1.value_table.items(), key=lambda pair: pair[1].string)
                 if val != self.mc.identity()],
             id_val=self.mc.identity(),
         )
         self.bs_B = PrefixTree(
             bs=[(node.string, val)
-                for val, node in sorted(self.sr2.value_table.items(), key=lambda pair: pair[1].string) 
+                for val, node in sorted(self.sr2.value_table.items(), key=lambda pair: pair[1].string)
                 if val != self.mc.identity()],
             id_val=self.mc.identity(),
         )
@@ -131,7 +159,7 @@ class CrossingAlgo:
                 node.string, table)
 
         # соберем вместе две таблицы
-        self.table = {**self.sr1.table, **self.sr2.table}
+        self.table = DictWrapper({**self.sr1.table, **self.sr2.table})
         self.value_table = {**self.sr1.value_table, **self.sr2.value_table}
 
     def setup_queue(self):
@@ -167,6 +195,7 @@ class CrossingAlgo:
 
     def calc_crossing(self):
         log('phase started: CROSSING', flags=LogFlags.DETAILED)
+        at = ActionTracker()
 
         def generator():
             while len(self.queue) > 0:
@@ -189,6 +218,7 @@ class CrossingAlgo:
             log(
                 f'succ nodes variants: {list(map(attrgetter("string"), succ_nodes))}',
                 lvl=3)
+            at.expect_to_check += len(switch_kind_nodes) + len(succ_nodes)
 
             def next_switch_kind():
                 log('this is switch kind', lvl=4)
@@ -243,6 +273,7 @@ class CrossingAlgo:
                 else:
                     new_qelem = next_succ()
                     succ_index += 1
+                at.checked_real +=1
 
                 log(f'ua = {new_qelem}', lvl=5)
 
@@ -254,6 +285,7 @@ class CrossingAlgo:
                 if new_qelem.prefix.is_identity():
                     self.queue.add(new_qelem)
                     log('new_qelem in basic strings: just add it to queue', lvl=5)
+                    at.skipped_as_bs +=1
                     continue
 
                 ua = new_qelem.to_string()
@@ -263,6 +295,7 @@ class CrossingAlgo:
                 # sa редуцируема, если ее нет в таблице
                 if sa_node is None:
                     log('new_qelem in is reducable: skip', lvl=5)
+                    at.reduced_by_str+=1
                     continue
 
                 log(f'sa is {sa} and it is not reducable!', lvl=5)
@@ -283,6 +316,7 @@ class CrossingAlgo:
                     # добавляем новую строку в очередь
                     self.queue.add(new_qelem)
                     log('new_qelem_val is new: add to queue', lvl=5)
+                    at.new_values_found+=1
                     continue
 
                 # такое значение есть, и эта строка не превосходит уже
@@ -292,41 +326,50 @@ class CrossingAlgo:
                     ua_min_node.heterogenic_linked_strings.add(ua)
                     log(
                         f'string with such value exists {ua_min_node.string} and less than ua: just link ua to it', lvl=5)
+                    at.reduced_by_value+=1
                     continue
-
                 # такое значение есть,
                 # ua < ua_min_string
                 # значит, ua_min_string - гомогенная
-                old_node = ua_min_node
-                log(
-                    f'string with such value exists {old_node.string}, but ua {ua} is less', lvl=5)
-                # создаем новый узел
-                new_node = EasyNode(
-                    value=ua_val,
-                    string=ua,
-                )
+                else:
+                    old_node = ua_min_node
+                    log(
+                        f'string with such value exists {old_node.string}, but ua {ua} is less', lvl=5)
+                    # создаем новый узел
+                    new_node = EasyNode(
+                        value=ua_val,
+                        string=ua,
+                    )
 
-                # записываем новый узел в таблицы
-                self.table[ua] = new_node
-                self.value_table[ua_val] = new_node
+                    # записываем новый узел в таблицы
+                    self.table[ua] = new_node
+                    self.value_table[ua_val] = new_node
 
-                log(f'link {old_node.linked_strings} and {old_node.heterogenic_linked_strings} to {ua}', lvl=5)
-                new_node.linked_strings |= old_node.linked_strings
-                new_node.heterogenic_linked_strings |= old_node.heterogenic_linked_strings
+                    log(f'link {old_node.linked_strings} and {old_node.heterogenic_linked_strings} to {ua}', lvl=5)
+                    new_node.linked_strings |= old_node.linked_strings
+                    new_node.heterogenic_linked_strings |= old_node.heterogenic_linked_strings
 
-                # старая строка редуцируется к новой
-                old_string = old_node.string
-                log(f'link {old_string} to {ua}', lvl=5)
-                new_node.linked_strings.add(old_string)
+                    # старая строка редуцируется к новой
+                    old_string = old_node.string
+                    log(f'link {old_string} to {ua}', lvl=5)
+                    new_node.linked_strings.add(old_string)
 
-                # удаляем old_string из prefix_tree
-                log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=5)
-                self.rm_bs_from_table_and_trees(old_string, self.table)
+                    # удаляем old_string из prefix_tree
+                    log(f'rm {old_string} and all its superstrings from prefix trees and table', lvl=5)
+                    self.rm_bs_from_table_and_trees(old_string, self.table)
 
-                # ну и добавляем в очередь
-                log(f'add {new_qelem} to queue', lvl=5)
-                self.queue.add(new_qelem)
+                    # ну и добавляем в очередь
+                    log(f'add {new_qelem} to queue', lvl=5)
+                    at.replaced_old_strings += 1
+                    self.queue.add(new_qelem)
 
+        log(f'total table lookups: {self.table.lookups_counter}',
+            lvl=2, flags=LogFlags.BRIEF_AND_DET)
+        # log(f'action tracker: {pformat(at)}', lvl=2, flags=LogFlags.BRIEF_AND_DET)
+        pp(at)
+
+        if at.checked_real < at.expect_to_check:
+            raise RuntimeError('aboba')
     def normalize_linked_strings(self):
         log('phase started: LINKED STRINGS NORMALIZATION', flags=LogFlags.DETAILED)
 
