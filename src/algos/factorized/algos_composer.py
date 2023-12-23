@@ -10,7 +10,7 @@ from .semigroup_repr import SemigroupRepr
 
 def buld_srki(gsf: GeneratingSetsFamily):
     generating_sets = gsf.get_all_generating_sets()
-    srki = [MilitaryAlgo(*gs.to_mc_and_sigma()).run()
+    srki = [MilitaryAlgo(*gs.to_mc_and_sigma()).run(silence_output=True)
             for gs in generating_sets]
     return srki
 

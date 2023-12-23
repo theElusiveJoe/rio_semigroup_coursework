@@ -1,11 +1,13 @@
 from __future__ import annotations
 from typing import Iterable
+from utils.action_tracker import AT
 
 
 class MonoidElem:
     symbols: list[int]
 
     def __init__(self, seq: Iterable[int]) -> None:
+        AT.monoids_created += 1
         self.symbols = list(seq)
 
     def __len__(self):
