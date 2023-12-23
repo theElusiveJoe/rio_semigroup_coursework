@@ -5,30 +5,35 @@ from algos.factorized.dict_wrapper import AT
 from pprint import pp
 
 from utils.logger import set_log_lvl, LogFlags
-set_log_lvl(LogFlags.BRIEF)
+set_log_lvl(LogFlags.NO)
 
 import random
+# random.seed(42)
 
 
 def cmp(x):
     AT.reset()
-    res, tm = timer(AlgosComposer.militaristic)(x)
+    _, tm = timer(AlgosComposer.militaristic)(x)
     atm = AT.copy()
     pp(atm)
     
     AT.reset()
-    res, tc = timer(AlgosComposer.crossing_tree_like)(x, assert_check=False)
+    _, tc = timer(AlgosComposer.crossing_tree_like)(x, assert_check=False)
     atc = AT.copy()
     pp(atc)
 
     sec_diff = tc - tm
     times_diff = tc/tm
 
-    print(f'\n>>🦤 diff {sec_diff}s, slower in {times_diff:.2} times')
+    succ, times_diff = ('SLOWER', times_diff) if tc > tm else ('FASTER', 1/times_diff)
+    print(f'\n>>🦤 diff {sec_diff}s')
+    print(f'\n>>🦤 {succ} {times_diff:.2} times')
 
-    if sec_diff < 0:
-        raise RuntimeError('CROSSING IS FASTER LOL')
+    
+    return sec_diff < 0
 
+total = 0
+succ = 0
 for i in range(1000):
     print('------------')
     # x = cs.gen_2_semigs(
@@ -47,8 +52,11 @@ for i in range(1000):
     # )
     # x = cs.bebebe(6,4)
     # x = cs.two_ideals(6,6)
-    
-    x = cs.gen_n_random(7,[6,6])
-    cmp(x)
-    
 
+    x = cs.gen_n_random(3,[6,6])
+    print(x)
+
+    succ += cmp(x)
+    total += 1
+
+print(succ/total)

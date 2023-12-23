@@ -65,7 +65,6 @@ class CrossingAlgo:
 
     def grow_bs_prefix_tree(self):
         # строим дерево базовых строк
-
         self.bs_A = PrefixTree(
             bs=[(node.string, val)
                 for val, node in sorted(self.sr1.value_table.items(), key=lambda pair: pair[1].string)

@@ -23,7 +23,7 @@ sigma = [1, 2, 3]
 tree = PrefixTree([], Transformation([]))
 fill_tree(tree, MonoidElem.identity(), sigma, 5)
 print(tree)
-w = MonoidElem([1])
+w = MonoidElem.from_char(1)
 
 print(f'w is {w}')
 res = tree.delete_all_superstrings_from_table_and_tree(w, {})

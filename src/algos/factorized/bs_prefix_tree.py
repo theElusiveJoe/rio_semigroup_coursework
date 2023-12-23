@@ -25,7 +25,7 @@ class PrefixTree:
         return self.root.find_node(string)
 
     def insert(self, string: MonoidElem, value: Universe):
-        log(f'inserting {string}', lvl=2)
+        log(lambda: f'inserting {string}', lvl=2)
         if string.is_identity():
             return
         pref = self.root.find_node(string.prefix())
