@@ -1,32 +1,49 @@
 from pprint import pp, pformat
+from tqdm import tqdm
+import sys
+
 from monoid import MonoidController, MonoidElem
 from universes import Universe
-from utils.logger import log
 
 from .easy_node import EasyNode
 from .semigroup_repr import SemigroupRepr
+from .dict_wrapper import DictWrapper
+from utils.action_tracker import AT
 
 
 class MilitaryAlgo:
     mc: MonoidController
     sigma: list[int]
-    table: dict[MonoidElem, EasyNode]
+    table: DictWrapper
     value_table: dict[Universe, EasyNode]
 
     queue: list[EasyNode]
 
-    def __init__(self, mc: MonoidController, sigma: list[int]) -> None:
+    silence: bool
+
+    def __init__(self, mc: MonoidController,
+                 sigma: list[int], silence=True) -> None:
         self.mc = mc
         self.sigma = sigma
 
-        self.table = {}
+        self.table = DictWrapper()
         self.value_table = {}
 
+        self.silence = silence
+
     def run(self):
-        log('MILITARY ALGO')
-        log(f'sigma is {self.sigma}', lvl=2)
+        save_stdout = sys.stdout
+        if self.silence:
+            sys.stdout = open('/dev/null', 'w')
+
+        print('\n>>🦩 Military started')
+
         self.setup()
         self.main_cycle()
+
+        if self.silence:
+            sys.stdout = save_stdout
+
         return self.to_sr()
 
     def to_sr(self):
@@ -38,14 +55,13 @@ class MilitaryAlgo:
         )
 
     def setup(self):
-        log('SETUP STARTED')
+
         id_node = EasyNode(
             value=self.mc.identity(),
             string=MonoidElem.identity(),
         )
         self.table[MonoidElem.identity()] = id_node
         self.value_table[self.mc.identity()] = id_node
-        log(f'add {id_node.string} -> {id_node.value}', lvl=2)
 
         self.queue = []
         for i in self.sigma:
@@ -58,28 +74,29 @@ class MilitaryAlgo:
             self.table[a] = new_node
             self.value_table[a_val] = new_node
             self.queue.append(new_node)
-            log(f'add {new_node.string} -> {new_node.value}', lvl=2)
 
     def main_cycle(self):
-        log('MILITARY STARTED')
-        while len(self.queue) != 0:
+
+        def generator():
+            while len(self.queue) > 0:
+                yield
+
+        for _ in tqdm(generator(), disable=self.silence):
             u_node = self.queue.pop(0)
             u = u_node.string
 
             for i in self.sigma:
+                AT.checked_real += 1
                 a = MonoidElem.from_char(i)
                 ua = u + a
-                # log(f'{self.table}', lvl=2)
-                # log(f'{self.value_table}', lvl=2)
-                log(f'ua is {ua}', lvl=2)
-                log(f'ua_val is {self.mc.evaluate(ua)}', lvl=2)
+
                 sa = ua.suffix()
 
                 sa_node = self.table.get(sa)
 
                 # sa уже куда-то редуцируется
                 if sa_node is None or sa_node.string != sa:
-                    log(f'sa reduces somewhere: just skip', lvl=3)
+                    AT.reduced_by_str += 1
                     continue
 
                 # вычисляем значение
@@ -93,12 +110,14 @@ class MilitaryAlgo:
                         value=ua_val,
                         string=ua
                     )
-                    log(f'ua_val is new: create new node', lvl=3)
+
                     self.table[ua] = new_node
                     self.value_table[ua_val] = new_node
                     self.queue.append(new_node)
+                    AT.new_values_found += 1
 
                 # значение не новое, надо редуцировать
                 else:
-                    log(f'ua_val exists: reduce to {min_node.string}', lvl=3)
+                    # type: ignore
                     min_node.linked_strings.add(ua)
+                    AT.reduced_by_value += 1

@@ -16,9 +16,9 @@ class SemigroupRepr:
 
     def get_srs(self):
         return dict(
-            (ls, node.string) 
+            (ls, node.string)
             for node in self.table.values()
-            for ls in node.linked_strings 
+            for ls in node.linked_strings
         )
 
     def __eq__(self, o: SemigroupRepr):

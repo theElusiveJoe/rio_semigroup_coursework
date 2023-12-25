@@ -1,26 +1,10 @@
-from algos.random_order import Algo, OrderConfig, LEX_ORDER, MILITARY_ORDER
-from monoid.controller import MonoidController
-from samples import military_samples
+from tests_collection import TESTS_COLLECTION
+
+from utils.testing_system import run_many
+
+from utils.logger import set_log_lvl, LogFlags
+set_log_lvl(LogFlags.NO)
 
 
-def main():
-    the_test = military_samples.t6_paper_example.generators
-    mc = MonoidController(the_test)
-
-    algo = Algo(
-        mc=mc,
-        order_cfg=MILITARY_ORDER,
-    )
-    res = algo.run()
-    print(res)
-
-    algo = Algo(
-        mc=mc,
-        order_cfg=LEX_ORDER,
-    )
-    res = algo.run()
-    print(res)
-
-
-if __name__ == '__main__':
-    main()
+df_path = 'res.csv'
+run_many(TESTS_COLLECTION, df_path, csv_mode='w')

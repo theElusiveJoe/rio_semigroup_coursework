@@ -1,14 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from sortedcontainers import SortedList
 
-from monoid import MonoidController, MonoidElem
+from monoid import MonoidElem
 from universes import Universe
 
-from .easy_node import EasyNode, MonoidElemKind
-from .military_algo import MilitaryAlgo
-from .semigroup_repr import SemigroupRepr
-from .bs_prefix_tree import PrefixTree, PrefixTreeNode
+from .easy_node import MonoidElemKind
+from .bs_prefix_tree import PrefixTreeNode
 
 
 @dataclass
@@ -32,10 +29,10 @@ class QueueElem:
 
 
 class Queue:
-    storage: SortedList
+    storage: list
 
     def __init__(self):
-        self.storage = SortedList()
+        self.storage = list()
 
     def __repr__(self):
         return f'Q{str(self.storage)}'
@@ -47,4 +44,4 @@ class Queue:
         return self.storage.pop(0)
 
     def add(self, e: QueueElem):
-        self.storage.add(e)
+        self.storage.append(e)

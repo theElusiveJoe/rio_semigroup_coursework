@@ -1,68 +1,102 @@
 from __future__ import annotations
-from typing import Iterable
+from utils.action_tracker import AT
+
+
+base = 1000
+
+
+def encode(seq: list[int]) -> int:
+    res = 0
+    for x in seq:
+        res *= base
+        res += (x + 1)
+    return res
+
+
+def decode(t: int | MonoidElem) -> list[int]:
+    s = 0
+    if isinstance(t, MonoidElem):
+        s = t.symbols
+    elif isinstance(t, int):
+        s = t
+
+    res = []
+    while s > 0:
+        res.append(s % base)
+        s //= base
+    return res[::-1]
 
 
 class MonoidElem:
-    symbols: list[int]
+    symbols: int
 
-    def __init__(self, seq: Iterable[int]) -> None:
-        self.symbols = list(seq)
+    def __init__(self, x: int) -> None:
+        AT.monoids_created += 1
+        self.symbols = x
 
     def __len__(self):
-        return len(self.symbols)
+        l = 0
+        x = self.symbols
+        while x:
+            x //= base
+            l += 1
+        return l
 
     def __getitem__(self, i: int) -> int:
-        return self.symbols[i]
+        return decode(self)[i]
 
     def __repr__(self):
-        return '(' + ','.join(map(str, self.symbols)) + ')'
+        return '(' + ','.join(map(str, decode(self))) + ')'
 
     def __add__(self, other: MonoidElem):
-        return MonoidElem(self.symbols + other.symbols)
+        if other.is_identity():
+            return self
+        return MonoidElem(self.symbols * base**len(other) + other.symbols)
 
     def __eq__(self, other: MonoidElem) -> bool:
         assert isinstance(other, MonoidElem)
         return self.symbols == other.symbols
 
     def __hash__(self) -> int:
-        return 0 if not self.symbols else self.symbols[-1]
-
-    def __contains__(self, other):
-        for i in range(len(self)):
-            if other.symbols == self.symbols[i:i + len(other)]:
-                return True
-        return False
+        return self.symbols % base**4
 
     def __lt__(self, o: MonoidElem):
-        return len(self) < len(o) or len(self) == len(
-            o) and self.symbols < o.symbols
+        return self.symbols < o.symbols
 
     def __gt__(self, o: MonoidElem):
-        return o < self
+        return self.symbols > o.symbols
 
     def first(self):
-        return MonoidElem([self[0]])
+        x = self.symbols
+        while x > base:
+            x //= base
+        return MonoidElem(x)
 
     def last(self):
-        return MonoidElem([self[-1]])
+        return MonoidElem(self.symbols % base)
 
     def prefix(self):
-        return MonoidElem(self.symbols[:-1])
+        return MonoidElem(self.symbols // base)
 
     def suffix(self):
-        return MonoidElem(self.symbols[1:])
+        return MonoidElem(
+            self.symbols - self.first().symbols * base**(len(self) - 1))
 
     @staticmethod
     def from_char(char: int) -> MonoidElem:
-        return MonoidElem([char])
+        return MonoidElem(encode([char]))
+
+    @staticmethod
+    def from_seq(chars: list[int]) -> MonoidElem:
+        return MonoidElem(encode(chars))
 
     @staticmethod
     def identity() -> MonoidElem:
-        return MonoidElem([])
+        return MonoidElem(0)
 
     def is_identity(self):
-        return len(self) == 0
+        return self.symbols == 0
 
-    def letter(self):
+    def letter(self) -> int:
         assert len(self) == 1
-        return self[0]
+        return self.symbols
