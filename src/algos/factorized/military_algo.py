@@ -18,17 +18,21 @@ class MilitaryAlgo:
     value_table: dict[Universe, EasyNode]
 
     queue: list[EasyNode]
+    
+    silence: bool
 
-    def __init__(self, mc: MonoidController, sigma: list[int]) -> None:
+    def __init__(self, mc: MonoidController, sigma: list[int], silence=True) -> None:
         self.mc = mc
         self.sigma = sigma
 
         self.table = DictWrapper()
         self.value_table = {}
 
-    def run(self, silence_output=False):
+        self.silence = silence
+
+    def run(self):
         save_stdout = sys.stdout
-        if silence_output:
+        if self.silence:
             sys.stdout = open('/dev/null', 'w')
 
         print('\n>>🦩 Military started')
@@ -37,7 +41,7 @@ class MilitaryAlgo:
         self.main_cycle()
 
 
-        if silence_output:
+        if self.silence:
             sys.stdout = save_stdout
 
         return self.to_sr()
@@ -80,11 +84,12 @@ class MilitaryAlgo:
             while len(self.queue) > 0:
                 yield
 
-        for _ in tqdm(generator()):
+        for _ in tqdm(generator(), disable=self.silence):
             u_node = self.queue.pop(0)
             u = u_node.string
 
             for i in self.sigma:
+                AT.checked_real += 1
                 a = MonoidElem.from_char(i)
                 ua = u + a
                 

@@ -4,6 +4,7 @@ from operator import attrgetter
 from pprint import pp, pformat
 from tqdm import tqdm
 from dataclasses import dataclass, field
+import sys
 
 from universes import Universe
 from monoid import MonoidController, MonoidElem
@@ -31,9 +32,15 @@ class CrossingAlgo:
 
     queue: Queue
 
-    def __init__(self, sr1: SemigroupRepr, sr2: SemigroupRepr) -> None:
+    silence: bool
+
+
+    def __init__(self, sr1: SemigroupRepr, sr2: SemigroupRepr, silence=True) -> None:
         self.mc = sr1.mc
         self.sr1, self.sr2 = sr1, sr2
+
+        self.silence = silence
+
 
     def another_bs_kind(self, kind: MonoidElemKind):
         return {
@@ -45,6 +52,10 @@ class CrossingAlgo:
         return bool(self.bs_A.find_node(string) or self.bs_B.find_node(string))
 
     def run(self):
+        save_stdout = sys.stdout
+        if self.silence:
+            sys.stdout = open('/dev/null', 'w')
+
         print('\n>>🦜 Crossing started')
 
         self.grow_bs_prefix_tree()
@@ -52,6 +63,9 @@ class CrossingAlgo:
         self.setup_queue()
         self.calc_crossing()
         self.normalize_linked_strings()
+
+        if self.silence:
+            sys.stdout = save_stdout
 
         return self.to_sr()
 
@@ -113,10 +127,11 @@ class CrossingAlgo:
             short_node.linked_strings |= node.linked_strings
 
             # удаляем node.string из prefix_tree
-
             self.rm_bs_from_table_and_trees(node.string, table)
             tree_with_big_string.delete_all_superstrings_from_table_and_tree(
                 node.string, table)
+            
+            AT.reduced_by_value += 1 
 
         # соберем вместе две таблицы
         self.table = DictWrapper({**self.sr1.table, **self.sr2.table})
@@ -157,7 +172,7 @@ class CrossingAlgo:
             while len(self.queue) > 0:
                 yield
 
-        for _ in tqdm(generator()):
+        for _ in tqdm(generator(), disable=self.silence):
             # выдергиваем следующий из очереди
 
             qelem = self.queue.pop()
@@ -222,7 +237,6 @@ class CrossingAlgo:
                     new_qelem = next_succ()
                     succ_index += 1
 
-                AT.checked_real += 1
 
                 # ua - это базовая строка - т.е. prefix = eps
                 # ua только что вышел из prefix tree,
@@ -235,6 +249,8 @@ class CrossingAlgo:
                     AT.skipped_as_bs += 1
                     continue
 
+                AT.checked_real += 1
+                
                 ua = new_qelem.to_string()
                 sa = ua.suffix()
                 sa_node = self.table.get(sa)

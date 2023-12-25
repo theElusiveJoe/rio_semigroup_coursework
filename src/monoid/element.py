@@ -55,7 +55,7 @@ class MonoidElem:
         return self.symbols == other.symbols
 
     def __hash__(self) -> int:
-        return self.symbols%100000
+        return self.symbols%base**4
 
     def __lt__(self, o: MonoidElem):
         return self.symbols < o.symbols

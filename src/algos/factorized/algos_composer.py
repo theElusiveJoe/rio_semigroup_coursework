@@ -10,7 +10,7 @@ from .semigroup_repr import SemigroupRepr
 
 def buld_srki(gsf: GeneratingSetsFamily):
     generating_sets = gsf.get_all_generating_sets()
-    srki = [MilitaryAlgo(*gs.to_mc_and_sigma()).run(silence_output=True)
+    srki = [MilitaryAlgo(*gs.to_mc_and_sigma()).run()
             for gs in generating_sets]
     return srki
 
@@ -54,13 +54,13 @@ def cmp_to_military(res: SemigroupRepr, gsf: GeneratingSetsFamily):
 class AlgosComposer:
 
     @staticmethod
-    def militaristic(gsf: GeneratingSetsFamily):
-        return MilitaryAlgo(*gsf.to_one_generating_set().to_mc_and_sigma()).run()
+    def militaristic(gsf: GeneratingSetsFamily, silence=True):
+        return MilitaryAlgo(*gsf.to_one_generating_set().to_mc_and_sigma(), silence=silence).run()
 
     @staticmethod
-    def crossing_chain_like(gsf: GeneratingSetsFamily, assert_check=True):
+    def crossing_chain_like(gsf: GeneratingSetsFamily, assert_check=True, silence=True):
         srki = buld_srki(gsf)
-        res = reduce(lambda x, y: CrossingAlgo(x, y).run(), srki)
+        res = reduce(lambda x, y: CrossingAlgo(x, y, silence=silence).run(), srki)
 
         if assert_check:
             cmp_to_military(res, gsf)
@@ -68,11 +68,11 @@ class AlgosComposer:
         return res
 
     @staticmethod
-    def crossing_tree_like(gsf: GeneratingSetsFamily, assert_check=True):
+    def crossing_tree_like(gsf: GeneratingSetsFamily, assert_check=True, silence=True):
         def crossing_wrap(sr1: SemigroupRepr, sr2: SemigroupRepr | None):
             if sr2 is None:
                 return sr1
-            return CrossingAlgo(sr1, sr2).run()
+            return CrossingAlgo(sr1, sr2, silence=silence).run()
 
         def loop(srki: list[SemigroupRepr]):
             match len(srki):
