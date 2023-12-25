@@ -34,13 +34,12 @@ class CrossingAlgo:
 
     silence: bool
 
-
-    def __init__(self, sr1: SemigroupRepr, sr2: SemigroupRepr, silence=True) -> None:
+    def __init__(self, sr1: SemigroupRepr, sr2: SemigroupRepr,
+                 silence=True) -> None:
         self.mc = sr1.mc
         self.sr1, self.sr2 = sr1, sr2
 
         self.silence = silence
-
 
     def another_bs_kind(self, kind: MonoidElemKind):
         return {
@@ -130,8 +129,8 @@ class CrossingAlgo:
             self.rm_bs_from_table_and_trees(node.string, table)
             tree_with_big_string.delete_all_superstrings_from_table_and_tree(
                 node.string, table)
-            
-            AT.reduced_by_value += 1 
+
+            AT.reduced_by_value += 1
 
         # соберем вместе две таблицы
         self.table = DictWrapper({**self.sr1.table, **self.sr2.table})
@@ -237,7 +236,6 @@ class CrossingAlgo:
                     new_qelem = next_succ()
                     succ_index += 1
 
-
                 # ua - это базовая строка - т.е. prefix = eps
                 # ua только что вышел из prefix tree,
                 # значит sa точно никуда не редуцируется
@@ -250,7 +248,7 @@ class CrossingAlgo:
                     continue
 
                 AT.checked_real += 1
-                
+
                 ua = new_qelem.to_string()
                 sa = ua.suffix()
                 sa_node = self.table.get(sa)

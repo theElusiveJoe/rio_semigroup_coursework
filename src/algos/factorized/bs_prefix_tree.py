@@ -56,8 +56,10 @@ class PrefixTree:
 
         return rec_foo(w_node, ret_w=False)
 
-    def delete_all_superstrings_from_table_and_tree(self, w: MonoidElem, table: dict[MonoidElem, Any]):
-        def rec_foo(w_node: PrefixTreeNode, table: dict[MonoidElem, Any], rm_w=False):
+    def delete_all_superstrings_from_table_and_tree(
+            self, w: MonoidElem, table: dict[MonoidElem, Any]):
+        def rec_foo(w_node: PrefixTreeNode,
+                    table: dict[MonoidElem, Any], rm_w=False):
             # удаляем {wx | x in SIGMA*}
             w_node.rm_all_super_prefixes_from_table_and_tree(
                 table, rm_self=rm_w)
@@ -79,7 +81,7 @@ class PrefixTree:
 
         if w.is_identity():
             return
-        
+
         w_pref_node = self.find_node(w.prefix())
         if w_pref_node is None:
             return
@@ -92,5 +94,3 @@ class PrefixTree:
         del w_pref_node.succ[i]
 
         rec_foo(w_node, table, rm_w=True)
-
-

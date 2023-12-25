@@ -1,11 +1,10 @@
 from __future__ import annotations
+from monoid import MonoidElem
+from algos.factorized.bs_prefix_tree import PrefixTree, PrefixTreeNode
+from universes import Transformation
 
 import sys
 sys.path.append(f'{sys.path[0]}/..')
-
-from universes import Transformation
-from algos.factorized.bs_prefix_tree import PrefixTree, PrefixTreeNode
-from monoid import MonoidElem
 
 
 def fill_tree(tree: PrefixTree, string: MonoidElem, sigma: list[int], l: int):

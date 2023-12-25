@@ -18,10 +18,11 @@ class MilitaryAlgo:
     value_table: dict[Universe, EasyNode]
 
     queue: list[EasyNode]
-    
+
     silence: bool
 
-    def __init__(self, mc: MonoidController, sigma: list[int], silence=True) -> None:
+    def __init__(self, mc: MonoidController,
+                 sigma: list[int], silence=True) -> None:
         self.mc = mc
         self.sigma = sigma
 
@@ -36,10 +37,9 @@ class MilitaryAlgo:
             sys.stdout = open('/dev/null', 'w')
 
         print('\n>>🦩 Military started')
-        
+
         self.setup()
         self.main_cycle()
-
 
         if self.silence:
             sys.stdout = save_stdout
@@ -55,14 +55,13 @@ class MilitaryAlgo:
         )
 
     def setup(self):
-        
+
         id_node = EasyNode(
             value=self.mc.identity(),
             string=MonoidElem.identity(),
         )
         self.table[MonoidElem.identity()] = id_node
         self.value_table[self.mc.identity()] = id_node
-        
 
         self.queue = []
         for i in self.sigma:
@@ -75,10 +74,8 @@ class MilitaryAlgo:
             self.table[a] = new_node
             self.value_table[a_val] = new_node
             self.queue.append(new_node)
-            
 
     def main_cycle(self):
-        
 
         def generator():
             while len(self.queue) > 0:
@@ -92,7 +89,7 @@ class MilitaryAlgo:
                 AT.checked_real += 1
                 a = MonoidElem.from_char(i)
                 ua = u + a
-                
+
                 sa = ua.suffix()
 
                 sa_node = self.table.get(sa)
@@ -113,7 +110,7 @@ class MilitaryAlgo:
                         value=ua_val,
                         string=ua
                     )
-                    
+
                     self.table[ua] = new_node
                     self.value_table[ua_val] = new_node
                     self.queue.append(new_node)
@@ -121,6 +118,6 @@ class MilitaryAlgo:
 
                 # значение не новое, надо редуцировать
                 else:
-                     # type: ignore
+                    # type: ignore
                     min_node.linked_strings.add(ua)
                     AT.reduced_by_value += 1

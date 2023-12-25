@@ -10,75 +10,81 @@ build_gsf = GeneratingSetsFamily.build_from_description
 автомат с самой плохой декомпозицией
 '''
 
+
 def rozen(n: int):
     t1 = [
-        [i+2 if i == j else n for i in range(n)]
-        for j in range(n-2)
+        [i + 2 if i == j else n for i in range(n)]
+        for j in range(n - 2)
     ]
-    t1.append([n-1 if i==n-2 else n for i in range(n)])
+    t1.append([n - 1 if i == n - 2 else n for i in range(n)])
     t1.append([n for _ in range(n)])
 
     t2 = [
-        [i if i-1 == j else n for i in range(n)]
-        for j in range(n-2)
+        [i if i - 1 == j else n for i in range(n)]
+        for j in range(n - 2)
     ]
     t2.insert(0, [1 if i == 0 else n for i in range(n)])
     t2.append([n for _ in range(n)])
-    
+
     return build_gsf(
         Transformation,
         t1, t2
     )
+
 
 def rozen2(n: int):
     t1 = [
-        [i+2 if i == j else n for i in range(n)]
-        for j in range(n-2)
+        [i + 2 if i == j else n for i in range(n)]
+        for j in range(n - 2)
     ]
-    t1.append([n-1 if i==n-2 else n for i in range(n)])
+    t1.append([n - 1 if i == n - 2 else n for i in range(n)])
     t1.append([n for _ in range(n)])
 
     t2 = [
-        [i if i-1 == j else n for i in range(n)]
-        for j in range(n-2)
+        [i if i - 1 == j else n for i in range(n)]
+        for j in range(n - 2)
     ]
     t2.insert(0, [1 if i == 0 else n for i in range(n)])
     t2.append([n for _ in range(n)])
-    
-    t3,t4 = t1[:len(t1)//2] + t2[:len(t2)//2], t1[len(t1)//2:] + t2[len(t2)//2:]
-    
+
+    t3, t4 = t1[:len(t1) // 2] + t2[:len(t2) //
+                                    2], t1[len(t1) // 2:] + t2[len(t2) // 2:]
+
     return build_gsf(
         Transformation,
-        t3,t4
+        t3, t4
     )
+
 
 def two_cycles(n: int):
     t1 = [
-        [i+2 if i == j else n for i in range(n-1)] + [n]
-        for j in range(n-2)
-    ] + [[1 if i == n-2 else n for i in range(n-1)]+ [n]]
+        [i + 2 if i == j else n for i in range(n - 1)] + [n]
+        for j in range(n - 2)
+    ] + [[1 if i == n - 2 else n for i in range(n - 1)] + [n]]
 
-    t2 = [[n-1 if i == 0 else n for i in range(n-1)]+ [n]] + [
-        [i if i == j else n for i in range(n-1)]+ [n]
-        for j in range(1,n-1)
-    ] 
+    t2 = [[n - 1 if i == 0 else n for i in range(n - 1)] + [n]] + [
+        [i if i == j else n for i in range(n - 1)] + [n]
+        for j in range(1, n - 1)
+    ]
     return build_gsf(
         Transformation,
         t1, t2
     )
 
+
 def ziggy(n: int):
-    s = { i:random.sample(list(range(1, n+1)), n) for i in range(1,n+1)}
+    s = {i: random.sample(list(range(1, n + 1)), n) for i in range(1, n + 1)}
     print(s)
     t1 = [
-        [s[i+1].pop() for i in range(n)]
+        [s[i + 1].pop() for i in range(n)]
         for _ in range(n)
     ]
 
     return build_gsf(
         Transformation,
-        t1[:len(t1)//2], t1[len(t1)//2:]
+        t1[:len(t1) // 2], t1[len(t1) // 2:]
     )
+
 
 '''
 этот же автомат, но сломанный в одном месте
@@ -149,11 +155,11 @@ def two_semigs(l1: int, s1: int, s3: int):
 
     s3 - количество свапов между элементами групп
     '''
-    const1 = [i+1 for i in range(l1)]
-    const2 = [l1+i+1 for i in range(l1)]
+    const1 = [i + 1 for i in range(l1)]
+    const2 = [l1 + i + 1 for i in range(l1)]
 
     def e1(): return random_list(1, l1, l1)
-    def e2(): return random_list(l1+1, l1+l1, l1)
+    def e2(): return random_list(l1 + 1, l1 + l1, l1)
 
     sg1 = [
         e1() + const2
@@ -185,11 +191,11 @@ def two_semigs_st(l1: int, s1: int):
 
     s2 - количество порождающих вторую полугруппу
     '''
-    const1 = [i+1 for i in range(l1)]
-    const2 = [l1+i+1 for i in range(l1)]
+    const1 = [i + 1 for i in range(l1)]
+    const2 = [l1 + i + 1 for i in range(l1)]
 
     def e1(): return random_list(1, l1, l1)
-    def e2(): return random_list(l1+1, l1+l1, l1)
+    def e2(): return random_list(l1 + 1, l1 + l1, l1)
 
     sg1 = [
         e1() + const2
@@ -201,7 +207,7 @@ def two_semigs_st(l1: int, s1: int):
     ]
 
     trans = [
-        [l1+1+i for i in range(l1)] + [1+i for i in range(l1)]
+        [l1 + 1 + i for i in range(l1)] + [1 + i for i in range(l1)]
     ]
     return build_gsf(
         Transformation,
@@ -236,8 +242,8 @@ def dopplers(n: int, k: int):
     n - модность множества
     k - количество порождающих
     '''
-    const1 = [i+1 for i in range(n)]
-    const2 = [n+i+1 for i in range(n)]
+    const1 = [i + 1 for i in range(n)]
+    const2 = [n + i + 1 for i in range(n)]
 
     def e1(): return random_list(1, n, n)
     t1 = [
@@ -249,7 +255,7 @@ def dopplers(n: int, k: int):
     t1 = [x + const2 for x in t1]
     t2 = [const1 + x for x in t2]
     t3 = [
-        list(range(n+1, 2*n+1)) + list(range(1, n+1))
+        list(range(n + 1, 2 * n + 1)) + list(range(1, n + 1))
     ]
     return build_gsf(
         Transformation,
@@ -259,11 +265,11 @@ def dopplers(n: int, k: int):
 
 def two_ideals(n: int, k: int):
     t1 = [
-        random_list(1, n, n*2)
+        random_list(1, n, n * 2)
         for _ in range(k)
     ]
     t2 = [
-        random_list(n+1, 2*n, n*2)
+        random_list(n + 1, 2 * n, n * 2)
         for _ in range(k)
     ]
 
@@ -274,14 +280,14 @@ def two_ideals(n: int, k: int):
 
 
 def independenties(n: int, s: int):
-    const = [2*n+1]*n
+    const = [2 * n + 1] * n
 
     sg1 = [
-        random_list(1,n,n) + const + [2*n+1]
+        random_list(1, n, n) + const + [2 * n + 1]
         for _ in range(s)
     ]
     sg2 = [
-        const+random_list(1+n,n+n,n) + [2*n+1]
+        const + random_list(1 + n, n + n, n) + [2 * n + 1]
         for _ in range(s)
     ]
     return build_gsf(
@@ -290,8 +296,8 @@ def independenties(n: int, s: int):
     )
 
 
-def ind_dopplers(n: int, k:int):
-    const = [n+1 for i in range(n)]
+def ind_dopplers(n: int, k: int):
+    const = [n + 1 for i in range(n)]
 
     def e1(): return random_list(1, n, n)
     t1 = [
@@ -300,8 +306,8 @@ def ind_dopplers(n: int, k:int):
     t2 = [
         [y + n for y in x] for x in t1
     ]
-    t1 = [x + const + [2*n+1] for x in t1]
-    t2 = [const + x + [2*n+1]for x in t2]
+    t1 = [x + const + [2 * n + 1] for x in t1]
+    t2 = [const + x + [2 * n + 1]for x in t2]
 
     return build_gsf(
         Transformation,
@@ -309,21 +315,22 @@ def ind_dopplers(n: int, k:int):
     )
 
 
-def prism(n: int, n1: int,  s: int):
-    const = [2*n+1 for _ in range(n)]
+def prism(n: int, n1: int, s: int):
+    const = [2 * n + 1 for _ in range(n)]
     # главная часть
     t1 = [
-        const + random_list(n+1, 2*n, n) + [2*n+1]
+        const + random_list(n + 1, 2 * n, n) + [2 * n + 1]
         for _ in range(n)
     ]
     # переход
     t2 = [
-        random_list(n+1, 2*n, n) + [2*n+1 for _ in range(n)] + [2*n+1]
+        random_list(n + 1, 2 * n, n) +
+        [2 * n + 1 for _ in range(n)] + [2 * n + 1]
         for _ in range(n1)
     ]
     # побочная часть
     t3 = [
-        random_list(1, n, n) + const + [2*n+1]
+        random_list(1, n, n) + const + [2 * n + 1]
         for _ in range(n)
     ]
     return build_gsf(

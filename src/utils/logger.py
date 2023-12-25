@@ -21,7 +21,7 @@ class _MyLogger:
         self.l.setLevel(logging.INFO)
         self.l.addHandler(StreamHandler(stream=sys.stdout))
 
-    def log(self, s_func: Callable[[],str], lvl: int, flags: int):
+    def log(self, s_func: Callable[[], str], lvl: int, flags: int):
         if self.enabled_lvl & flags:
             s = s_func()
             s = f"{' '*4*(lvl-1)}-> {s}"
@@ -31,7 +31,8 @@ class _MyLogger:
 _logger_instance = _MyLogger()
 
 
-def log(s_func: Callable[[],str], lvl: int = 1, flags: int = LogFlags.DETAILED):
+def log(s_func: Callable[[], str], lvl: int = 1,
+        flags: int = LogFlags.DETAILED):
     assert lvl > 0
     _logger_instance.log(s_func, lvl, flags)
 

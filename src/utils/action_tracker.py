@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from copy import copy
 
 
-
 @dataclass
 class ActionTracker:
     expect_to_check: int = field(default=0)
@@ -18,9 +17,10 @@ class ActionTracker:
     def reset(self):
         [setattr(self, attr, 0)
          for attr in dir(self)
-         if not attr.startswith('_') and type(getattr(self, attr)) is int]
+         if not attr.startswith('_') and isinstance(getattr(self, attr), int)]
 
     def copy(self):
         return copy(self)
-    
+
+
 AT = ActionTracker()

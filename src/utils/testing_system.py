@@ -26,7 +26,8 @@ class TableRow(NamedTuple):
     replaced_old_strings_cross: int
 
 
-def run_cmp(sg_class: Callable, args: tuple[Any, ...], log_to_std: bool = True, df: pd.DataFrame | None = None):
+def run_cmp(sg_class: Callable, args: tuple[Any, ...],
+            log_to_std: bool = True, df: pd.DataFrame | None = None):
     # если надо, игнорируем вывод
     save_stdout = sys.stdout
     if not log_to_std:
@@ -50,10 +51,10 @@ def run_cmp(sg_class: Callable, args: tuple[Any, ...], log_to_std: bool = True, 
 
     # вывод
     sec_diff = tc - tm
-    times_diff = tc/tm
-    succ, times_diff = (colorama.Fore.RED+'SLOWER', times_diff) \
+    times_diff = tc / tm
+    succ, times_diff = (colorama.Fore.RED + 'SLOWER', times_diff) \
         if tc > tm \
-        else (colorama.Fore.GREEN+'FASTER', 1/times_diff)
+        else (colorama.Fore.GREEN + 'FASTER', 1 / times_diff)
     print(f'\n>>🦤 diff {sec_diff}s')
     print(
         f'>>🦤 table lookups win {atm.table_lookups - atc.table_lookups}:  {100 - atc.table_lookups/atm.table_lookups*100:.2}%')
@@ -73,7 +74,7 @@ def run_cmp(sg_class: Callable, args: tuple[Any, ...], log_to_std: bool = True, 
     if not log_to_std:
         sys.stdout = save_stdout
 
-    return tm+tc
+    return tm + tc
 
 
 class TestingSample(NamedTuple):
@@ -90,7 +91,8 @@ def _run_single(ts: TestingSample, df: pd.DataFrame):
             run_cmp(ts.func, arg, log_to_std=False, df=df)
 
 
-def run_many(tests: Iterable[TestingSample], df_path: str, csv_mode: Literal['w', 'a'] = 'a'):
+def run_many(tests: Iterable[TestingSample],
+             df_path: str, csv_mode: Literal['w', 'a'] = 'a'):
     df = pd.DataFrame(columns=TableRow._fields)
     pp(tests)
 
